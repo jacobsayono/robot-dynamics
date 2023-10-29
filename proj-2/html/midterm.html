@@ -1,0 +1,419 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>midterm</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-02-20"><meta name="DC.source" content="midterm.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Jacob Sayono</a></li><li><a href="#2">Part 1 - Kinematic Analysis</a></li><li><a href="#3">Part 2 - Simulation</a></li><li><a href="#4">Function Definitions</a></li></ul></div><h2 id="1">Jacob Sayono</h2><pre class="codeinput"><span class="comment">% 505368811</span>
+<span class="comment">% MAE C163B</span>
+<span class="comment">% Midterm</span>
+</pre><h2 id="2">Part 1 - Kinematic Analysis</h2><pre class="codeinput">close; clear; clc
+
+<span class="comment">% DH PARAMETERS</span>
+syms <span class="string">th1</span> <span class="string">th2</span> <span class="string">th3</span> <span class="string">th4</span> <span class="string">th5</span> <span class="string">th6</span>
+
+<span class="comment">% Modified DH parameters</span>
+alpha = [0, -pi/2, 0, -pi/2, pi/2, -pi/2];
+a = [0, 0, 0.4318, 0.019, 0, 0];
+d = [0, 0, 0.1254, 0.4318, 0, 0];
+th = [th1, th2, th3, th4, th5, th6];
+
+
+<span class="comment">% FORWARD KINEMATICS</span>
+syms <span class="string">theta1</span> <span class="string">theta2</span> <span class="string">theta3</span> <span class="string">theta4</span> <span class="string">theta5</span> <span class="string">theta6</span> <span class="string">theta_t</span>
+
+T01 = [cos(theta1) -sin(theta1) 0 0;
+sin(theta1) cos(theta1) 0 0;
+0 0 1 0;
+0 0 0 1];
+
+T12 = [cos(theta2) -sin(theta2) 0 0;
+0 0 1 0;
+-sin(theta2) -cos(theta2) 0 0;
+0 0 0 1];
+
+T23 = [cos(theta3) -sin(theta3) 0 0.4318;
+sin(theta3) cos(theta3) 0 0;
+0 0 1 0.1254;
+0 0 0 1];
+
+T34 = [cos(theta4) -sin(theta4) 0 0.019;
+0 0 1 0.4318;
+-sin(theta4) -cos(theta4) 0 0;
+0 0 0 1];
+
+T45 = [cos(theta5) -sin(theta5) 0 0;
+0 0 -1 0;
+sin(theta5) cos(theta5) 0 0;
+0 0 0 1];
+
+T56 = [cos(theta6) -sin(theta6) 0 0;
+0 0 1 0;
+-sin(theta6) -cos(theta6) 0 0;
+0 0 0 1];
+
+T6t = [cos(theta_t) -sin(theta_t) 0 -0.1;
+sin(theta_t) cos(theta_t) 0 0;
+0 0 1 0.08;
+0 0 0 1];
+
+<span class="comment">% find forward kinematics</span>
+T = T01 * T12 * T23 * T34 * T45 * T56;
+T0t = T * T6t;
+Tinv6t = inv(T6t);
+
+<span class="comment">% set some random joint angles in radians</span>
+q = [0.2, 0.3, -0.5, 0.4, 0.1, 0.8];
+
+<span class="comment">% check forward kinematics function</span>
+T = fk(q)
+
+<span class="comment">% separate parameters from matrix</span>
+position = T(1:3, 4)
+orientation = tform2eul(T, <span class="string">'XYZ'</span>)
+
+<span class="comment">% INVERSE KINEMATICS</span>
+[T1, T2, T3, T4, T5, T6, Tt] = IK(T)
+
+<span class="comment">% create table</span>
+PUMA_ik = SerialLink(L, <span class="string">'name'</span>, <span class="string">'PUMA_INVERSE_KINEMATICS'</span>)
+</pre><h2 id="3">Part 2 - Simulation</h2><pre class="codeinput"><span class="comment">% FORWARD KINEMATICS</span>
+
+<span class="comment">% DH parameters for Puma560</span>
+L1 = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, 0, <span class="string">'a'</span>, 0, <span class="string">'d'</span>, 0, <span class="string">'modified'</span>);
+L2 = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, -pi/2, <span class="string">'a'</span>, 0, <span class="string">'d'</span>, 0, <span class="string">'modified'</span>);
+L3 = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, 0, <span class="string">'a'</span>, 0.4318, <span class="string">'d'</span>, 0.1254, <span class="string">'modified'</span>);
+L4 = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, -pi/2, <span class="string">'a'</span>, 0.019, <span class="string">'d'</span>, 0.4318, <span class="string">'modified'</span>);
+L5 = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, pi/2, <span class="string">'a'</span>, 0, <span class="string">'d'</span>, 0, <span class="string">'modified'</span>);
+L6 = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, -pi/2, <span class="string">'a'</span>, 0, <span class="string">'d'</span>, 0, <span class="string">'modified'</span>);
+<span class="comment">% L7 = Link('revolute', 'alpha', 0, 'a', -0.1, 'd', .008, 'modified');</span>
+tool = transl(0, -0.1, .008);
+
+<span class="comment">% create robot using the DH parameters</span>
+Puma560 = SerialLink([L1 L2 L3 L4 L5 L6], <span class="string">'name'</span>, <span class="string">'Puma 560'</span>, <span class="string">'tool'</span>, tool);
+
+<span class="comment">% calculate the forward kinematics for the given joint angles</span>
+T = Puma560.fkine(q)
+
+
+<span class="comment">% INVERSE KINEMATICS</span>
+
+<span class="comment">% set the desired end-effector position and orientation</span>
+position = [0.5, -0.3, 0.4];
+orientation = [pi/2, 0, pi/2];
+
+<span class="comment">% convert the orientation to a rotation matrix</span>
+R = eul2r(orientation, <span class="string">'XYZ'</span>);
+
+<span class="comment">% calculate the inverse kinematics for the desired pose</span>
+q = Puma560.ikine(transl(position) * rpy2tr(orientation), <span class="string">'mask'</span>, [1 1 1 0 0 0])
+
+<span class="comment">% calculate the forward kinematics of the resulting joint angles to verify the solution</span>
+T = Puma560.fkine(q)
+
+<span class="comment">% visualize robot</span>
+figure(1)
+Puma560.plot([T1, T2, T3, T4, T5, T6, Tt],<span class="string">'workspace'</span>,[-500,500,-500,500,0,500])
+</pre><h2 id="4">Function Definitions</h2><pre class="codeinput"><span class="comment">% matrix function given DH parameters</span>
+<span class="keyword">function</span> matrix = mat_from_DH(alpha_iminus1, a_iminus1, d_i, theta_i)
+    matrix = [cosd(theta_i) -sind(theta_i) 0 a_iminus1;
+              sind(theta_i)*cosd(alpha_iminus1) cosd(theta_i)*cosd(alpha_iminus1) -sind(alpha_iminus1) -sind(alpha_iminus1)*d_i;
+              sind(theta_i)*sind(alpha_iminus1) cosd(theta_i)*sind(alpha_iminus1) cosd(alpha_iminus1) cosd(alpha_iminus1)*d_i;
+              0 0 0 1];
+<span class="keyword">end</span>
+
+<span class="comment">% forward kinematics</span>
+<span class="keyword">function</span> T = fk(theta1, theta2, theta3, theta4, theta5, theta6, thetat)
+    <span class="comment">% joint lengths</span>
+    a2 = 0.4318;
+    a3 = 0.0191;
+    d3 = 0.1254;
+    d4 = 0.4318;
+
+    T01 = mat_from_DH(0, 0, 0, theta1);
+    T12 = mat_from_DH(-90, 0, 0, theta2);
+    T23 = mat_from_DH(0, a2, d3, theta3);
+    T34 = mat_from_DH(-90, a3, d4, theta4);
+    T45 = mat_from_DH(90, 0, 0, theta5);
+    T56 = mat_from_DH(-90, 0, 0, theta6);
+    T6t = mat_from_DH(0, -0.1, 0.08, thetat);
+
+    T = T01*T12*T23*T34*T45*T56*T6t;
+
+<span class="keyword">end</span>
+
+<span class="comment">% inverse kinematics</span>
+<span class="keyword">function</span> [t1, t2, t3, t4, t5, t6] = ik(T_location)
+    <span class="comment">% joint lengths</span>
+    a2 = 0.4318;
+    a3 = 0.0191;
+    d3 = 0.1254;
+    d4 = 0.4318;
+
+    <span class="comment">% transformation matrices</span>
+    T_Gto6 = [1 0 0 0; 0 1 0 0; 0 0 1 0.05625; 0 0 0 1];
+    T_TtoG = [1 0 0 -0.1; 0 1 0 0; 0 0 1 0.08; 0 0 0 1];
+    T_input = T_location * inverse(T_TtoG) * inverse(T_Gto6);
+
+    <span class="comment">% extract variables</span>
+    r = T_input(1:3,1:3);
+    p = T_input(1:3,4);
+    px = p(1);
+    py = p(2);
+    pz = p(3);
+
+    <span class="comment">% compute inverse kinematics</span>
+    t1 = atan2(py, px);
+    t3 = atan2(a3, -d4) - atan2(sqrt(1 - ((px^2 + py^2 + pz^2 - a2^2 - a3^2 - d3^2 - d4^2)/(2*a2))^2), (px^2 + py^2 + pz^2 - a2^2 - a3^2 - d3^2 - d4^2)/(2*a2));
+    t23 = atan2((a3 + a2*cos(t3))*pz - (cos(t1)*px + sin(t1)*py)*(a2*sin(t3) - d4), (a3 + a2*cos(t3))*(cos(t1)*px + sin(t1)*py) + (a2*sin(t3) - d4)*pz);
+    t2 = t23 - t3;
+    t4 = atan2(r(3,1)*sin(t1) - r(3,2)*cos(t1), -r(1,3)*sin(t1)*cos(t2+t3) + r(2,3)*cos(t1)*cos(t2+t3) - r(3,3)*sin(t2+t3));
+    t5 = atan2(sqrt(1 - (r(1,3)*sin(t1)*cos(t2+t3) - r(2,3)*cos(t1)*cos(t2+t3) + r(3,3)*sin(t2+t3))^2), r(1,3)*cos(t1)*cos(t2+t3) + r(2,3)*sin(t1)*cos(t2+t3) + r(3,3)*cos(t2+t3));
+    t6 = atan2(-r(1,2)*sin(t1)*cos(t4) - r(2,2)*cos(t1)*cos(t4) + r(3,2)*sin(t4), r(1,1)*sin(t1)*cos(t4) + r(2,1)*cos(t1)*cos(t4) - r(3,1)*sin(t4)*cos(t2+t3));
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Jacob Sayono
+
+% 505368811
+% MAE C163B
+% Midterm
+
+%% Part 1 - Kinematic Analysis
+
+close; clear; clc
+
+% DH PARAMETERS
+syms th1 th2 th3 th4 th5 th6
+
+% Modified DH parameters
+alpha = [0, -pi/2, 0, -pi/2, pi/2, -pi/2];
+a = [0, 0, 0.4318, 0.019, 0, 0];
+d = [0, 0, 0.1254, 0.4318, 0, 0];
+th = [th1, th2, th3, th4, th5, th6];
+
+
+% FORWARD KINEMATICS
+syms theta1 theta2 theta3 theta4 theta5 theta6 theta_t
+
+T01 = [cos(theta1) -sin(theta1) 0 0;
+sin(theta1) cos(theta1) 0 0;
+0 0 1 0;
+0 0 0 1];
+
+T12 = [cos(theta2) -sin(theta2) 0 0;
+0 0 1 0;
+-sin(theta2) -cos(theta2) 0 0;
+0 0 0 1];
+
+T23 = [cos(theta3) -sin(theta3) 0 0.4318;
+sin(theta3) cos(theta3) 0 0;
+0 0 1 0.1254;
+0 0 0 1];
+
+T34 = [cos(theta4) -sin(theta4) 0 0.019;
+0 0 1 0.4318;
+-sin(theta4) -cos(theta4) 0 0;
+0 0 0 1];
+
+T45 = [cos(theta5) -sin(theta5) 0 0;
+0 0 -1 0;
+sin(theta5) cos(theta5) 0 0;
+0 0 0 1];
+
+T56 = [cos(theta6) -sin(theta6) 0 0;
+0 0 1 0;
+-sin(theta6) -cos(theta6) 0 0;
+0 0 0 1];
+
+T6t = [cos(theta_t) -sin(theta_t) 0 -0.1;
+sin(theta_t) cos(theta_t) 0 0;
+0 0 1 0.08;
+0 0 0 1];
+
+% find forward kinematics
+T = T01 * T12 * T23 * T34 * T45 * T56;
+T0t = T * T6t;
+Tinv6t = inv(T6t);
+
+% set some random joint angles in radians
+q = [0.2, 0.3, -0.5, 0.4, 0.1, 0.8];
+
+% check forward kinematics function
+T = fk(q)
+
+% separate parameters from matrix
+position = T(1:3, 4)
+orientation = tform2eul(T, 'XYZ')
+
+% INVERSE KINEMATICS
+[T1, T2, T3, T4, T5, T6, Tt] = IK(T)
+
+% create table
+PUMA_ik = SerialLink(L, 'name', 'PUMA_INVERSE_KINEMATICS')
+
+%% Part 2 - Simulation
+
+% FORWARD KINEMATICS
+
+% DH parameters for Puma560
+L1 = Link('revolute', 'alpha', 0, 'a', 0, 'd', 0, 'modified');
+L2 = Link('revolute', 'alpha', -pi/2, 'a', 0, 'd', 0, 'modified');
+L3 = Link('revolute', 'alpha', 0, 'a', 0.4318, 'd', 0.1254, 'modified');
+L4 = Link('revolute', 'alpha', -pi/2, 'a', 0.019, 'd', 0.4318, 'modified');
+L5 = Link('revolute', 'alpha', pi/2, 'a', 0, 'd', 0, 'modified');
+L6 = Link('revolute', 'alpha', -pi/2, 'a', 0, 'd', 0, 'modified');
+% L7 = Link('revolute', 'alpha', 0, 'a', -0.1, 'd', .008, 'modified');
+tool = transl(0, -0.1, .008);
+
+% create robot using the DH parameters
+Puma560 = SerialLink([L1 L2 L3 L4 L5 L6], 'name', 'Puma 560', 'tool', tool);
+
+% calculate the forward kinematics for the given joint angles
+T = Puma560.fkine(q)
+
+
+% INVERSE KINEMATICS
+
+% set the desired end-effector position and orientation
+position = [0.5, -0.3, 0.4];
+orientation = [pi/2, 0, pi/2];
+
+% convert the orientation to a rotation matrix
+R = eul2r(orientation, 'XYZ');
+
+% calculate the inverse kinematics for the desired pose
+q = Puma560.ikine(transl(position) * rpy2tr(orientation), 'mask', [1 1 1 0 0 0])
+
+% calculate the forward kinematics of the resulting joint angles to verify the solution
+T = Puma560.fkine(q)
+
+% visualize robot
+figure(1)
+Puma560.plot([T1, T2, T3, T4, T5, T6, Tt],'workspace',[-500,500,-500,500,0,500])
+
+%% Function Definitions
+
+% matrix function given DH parameters
+function matrix = mat_from_DH(alpha_iminus1, a_iminus1, d_i, theta_i)
+    matrix = [cosd(theta_i) -sind(theta_i) 0 a_iminus1;
+              sind(theta_i)*cosd(alpha_iminus1) cosd(theta_i)*cosd(alpha_iminus1) -sind(alpha_iminus1) -sind(alpha_iminus1)*d_i;
+              sind(theta_i)*sind(alpha_iminus1) cosd(theta_i)*sind(alpha_iminus1) cosd(alpha_iminus1) cosd(alpha_iminus1)*d_i;
+              0 0 0 1];
+end
+
+% forward kinematics
+function T = fk(theta1, theta2, theta3, theta4, theta5, theta6, thetat)
+    % joint lengths
+    a2 = 0.4318;
+    a3 = 0.0191;
+    d3 = 0.1254;
+    d4 = 0.4318;
+    
+    T01 = mat_from_DH(0, 0, 0, theta1);
+    T12 = mat_from_DH(-90, 0, 0, theta2);
+    T23 = mat_from_DH(0, a2, d3, theta3);
+    T34 = mat_from_DH(-90, a3, d4, theta4);
+    T45 = mat_from_DH(90, 0, 0, theta5);
+    T56 = mat_from_DH(-90, 0, 0, theta6);
+    T6t = mat_from_DH(0, -0.1, 0.08, thetat);
+    
+    T = T01*T12*T23*T34*T45*T56*T6t;
+
+end
+
+% inverse kinematics
+function [t1, t2, t3, t4, t5, t6] = ik(T_location)
+    % joint lengths
+    a2 = 0.4318;
+    a3 = 0.0191;
+    d3 = 0.1254;
+    d4 = 0.4318;
+
+    % transformation matrices
+    T_Gto6 = [1 0 0 0; 0 1 0 0; 0 0 1 0.05625; 0 0 0 1];
+    T_TtoG = [1 0 0 -0.1; 0 1 0 0; 0 0 1 0.08; 0 0 0 1];
+    T_input = T_location * inverse(T_TtoG) * inverse(T_Gto6);
+
+    % extract variables
+    r = T_input(1:3,1:3);
+    p = T_input(1:3,4);
+    px = p(1);
+    py = p(2);
+    pz = p(3);
+
+    % compute inverse kinematics
+    t1 = atan2(py, px);
+    t3 = atan2(a3, -d4) - atan2(sqrt(1 - ((px^2 + py^2 + pz^2 - a2^2 - a3^2 - d3^2 - d4^2)/(2*a2))^2), (px^2 + py^2 + pz^2 - a2^2 - a3^2 - d3^2 - d4^2)/(2*a2));
+    t23 = atan2((a3 + a2*cos(t3))*pz - (cos(t1)*px + sin(t1)*py)*(a2*sin(t3) - d4), (a3 + a2*cos(t3))*(cos(t1)*px + sin(t1)*py) + (a2*sin(t3) - d4)*pz);
+    t2 = t23 - t3;
+    t4 = atan2(r(3,1)*sin(t1) - r(3,2)*cos(t1), -r(1,3)*sin(t1)*cos(t2+t3) + r(2,3)*cos(t1)*cos(t2+t3) - r(3,3)*sin(t2+t3));
+    t5 = atan2(sqrt(1 - (r(1,3)*sin(t1)*cos(t2+t3) - r(2,3)*cos(t1)*cos(t2+t3) + r(3,3)*sin(t2+t3))^2), r(1,3)*cos(t1)*cos(t2+t3) + r(2,3)*sin(t1)*cos(t2+t3) + r(3,3)*cos(t2+t3));
+    t6 = atan2(-r(1,2)*sin(t1)*cos(t4) - r(2,2)*cos(t1)*cos(t4) + r(3,2)*sin(t4), r(1,1)*sin(t1)*cos(t4) + r(2,1)*cos(t1)*cos(t4) - r(3,1)*sin(t4)*cos(t2+t3));
+end
+
+##### SOURCE END #####
+--></body></html>

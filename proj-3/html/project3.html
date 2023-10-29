@@ -1,0 +1,2519 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>MAE C163B Project 3</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-03-14"><meta name="DC.source" content="project3.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>MAE C163B Project 3</h1><!--introduction--><p>Jacob Sayono 505368811</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Jacobian Derivation</a></li><li><a href="#2">Singularities</a></li><li><a href="#3">Jacobian Ellipsoid</a></li><li><a href="#4">Arm Optimization</a></li><li><a href="#5">Functions</a></li></ul></div><h2 id="1">Jacobian Derivation</h2><pre class="codeinput"><span class="comment">% VELOCITY PROPAGATION</span>
+close <span class="string">all</span>; clear <span class="string">all</span>; clc;
+
+syms <span class="string">theta1</span> <span class="string">theta2</span> <span class="string">theta3</span> <span class="string">l1</span> <span class="string">l2</span> <span class="string">d1</span> <span class="string">d4</span>
+
+<span class="comment">% Modified Denavit-Hartenberg (DH) parameters</span>
+alpha = [0, 0, 0, 0];
+a = [0, l1, l2, 0];
+d = [d1, 0, 0, -d4];
+theta = [theta1, theta2, theta3, 0];
+L(1) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(1), <span class="string">'a'</span>, a(1), <span class="string">'d'</span>, d(1), <span class="string">'modified'</span>);
+L(2) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(2), <span class="string">'a'</span>, a(2), <span class="string">'d'</span>, d(2), <span class="string">'modified'</span>);
+L(3) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(3), <span class="string">'a'</span>, a(3), <span class="string">'d'</span>, d(3), <span class="string">'modified'</span>);
+L(4) = Link(<span class="string">'prismatic'</span>, <span class="string">'alpha'</span>, alpha(4), <span class="string">'a'</span>, a(4), <span class="string">'theta'</span>, 0, <span class="string">'modified'</span>);
+scara_robot = SerialLink(L, <span class="string">'name'</span>, <span class="string">'scara_robot'</span>)
+
+<span class="comment">% Joint angles</span>
+syms <span class="string">theta1</span> <span class="string">theta2</span> <span class="string">theta3</span> <span class="string">d4</span>
+q = [theta1, theta2, theta3, d4];
+
+<span class="comment">% Transformation matrices</span>
+T01 = scara_robot.A(1, q);
+T12 = scara_robot.A(2, q);
+T23 = scara_robot.A(3, q);
+T34 = scara_robot.A(4, q);
+T04 = scara_robot.A([1 2 3 4], q);
+T04 = simplify(T04)
+
+<span class="comment">% Calculate rotation matrices and positions for each link</span>
+[R01, P01] = tr2rt(T01);
+[R12, P12] = tr2rt(T12);
+[R23, P23] = tr2rt(T23);
+[R34, P34] = tr2rt(T34);
+[R10, ~] = tr2rt(inv(T01));
+[R21, ~] = tr2rt(inv(T12));
+[R32, ~] = tr2rt(inv(T23));
+[R43, ~] = tr2rt(inv(T34));
+[R04, P04] = tr2rt(T04);
+[R02, P02] = tr2rt(simplify(T01*T12));
+[R03, P03] = tr2rt(simplify(T01*T12*T23));
+
+<span class="comment">% Define joint velocities</span>
+syms <span class="string">dq1</span> <span class="string">dq2</span> <span class="string">dq3</span> <span class="string">dd4</span>
+dq = [dq1; dq2; dq3; dd4];
+
+<span class="comment">% Calculate angular velocities for each frame</span>
+w00 = [0; 0; 0];
+w11 = simplify(R10*w00 + [0; 0; dq1]);
+w22 = simplify(R21*w11 + [0; 0; dq2]);
+w33 = simplify(R32*w22 + [0; 0; dq3]);
+w44 = simplify(R43*w33 + [0; 0; 0]);
+
+<span class="comment">% Define velocities for frame {0}</span>
+v0 = [0; 0; 0];
+
+<span class="comment">% Calculate velocities for each link</span>
+v01 = cross(w00, P01) + v0;
+v11 = simplify(R10*v01);
+v12 = cross(w11, P12) + v11;
+v22 = simplify(R21*v12);
+v23 = cross(w22, P23) + v22;
+v33 = simplify(R32*v23);
+v34 = cross(w33, P34) + v33;
+v44 = simplify(R43*v34 + [0; 0; dd4]);
+
+<span class="comment">% Calculate the Jacobian matrix</span>
+JV4 = simplify(jacobian(v44, dq)); <span class="comment">% Linear velocity</span>
+JW4 = simplify(jacobian(w44, dq)); <span class="comment">% Angular velocity</span>
+J4_VP = simplify([JV4; JW4]) <span class="comment">% Combined velocity</span>
+
+<span class="comment">% Jacobian expressed in frame {0}</span>
+JT = [R04, zeros(3,3);zeros(3,3), R04];
+J0_VP = simplify(JT * J4_VP)
+
+<span class="comment">% FORCE PROPAGATION</span>
+syms <span class="string">f_x</span> <span class="string">f_y</span> <span class="string">f_z</span> <span class="string">n_x</span> <span class="string">n_y</span> <span class="string">n_z</span>
+f_end = [f_x f_y f_z n_x n_y n_z];
+f4 = [f_x;f_y;f_z];
+f3 = R34 * f4;
+f2 = R23 * f3;
+f1 = R12 * f2; f1 = simplify(collect(f1, f_end));
+n4 = [n_x; n_y; n_z];
+n3 = R34*n4 + cross(P34,f3); n3 = simplify(collect(n3, f_end));
+n2 = R23*n3 + cross(P23,f2); n2 = simplify(collect(n2, f_end));
+n1 = R12*n2 + cross(P12,f1); n1 = simplify(collect(n1, f_end));
+
+<span class="comment">% Torque Matrix</span>
+tq1 = collect(transpose(n1) * [0;0;1], [f_x f_y f_z n_x n_y n_z]);
+tq2 = collect(transpose(n2) * [0;0;1], [f_x f_y f_z n_x n_y n_z]);
+tq3 = collect(transpose(n3) * [0;0;1], [f_x f_y f_z n_x n_y n_z]);
+tq4 = collect(transpose(f4) * [0;0;1], [f_x f_y f_z n_x n_y n_z]);
+TQ1 = equationsToMatrix(tq1, [f_x f_y f_z n_x n_y n_z]);
+TQ2 = equationsToMatrix(tq2, [f_x f_y f_z n_x n_y n_z]);
+TQ3 = equationsToMatrix(tq3, [f_x f_y f_z n_x n_y n_z]);
+TQ4 = equationsToMatrix(tq4, [f_x f_y f_z n_x n_y n_z]);
+JT = [R04, zeros(3,3); zeros(3,3), R04];
+J4_FP_T = [TQ1; TQ2; TQ3; TQ4];
+J4_FP = transpose(J4_FP_T);
+J4_FP = simplify(JT * J4_FP)
+
+<span class="comment">% EXPLICIT METHOD</span>
+Jxyz1 = diff(P04, theta1);
+Jxyz2 = diff(P04, theta2);
+Jxyz3 = diff(P04, theta3);
+Jxyz4 = diff(P04, d4);
+Jxyz = [Jxyz1 Jxyz2 Jxyz3 Jxyz4];
+Orn = [0; 0; theta1 + theta2 + theta3]; <span class="comment">% roll pitch yaw</span>
+JOrn1 = diff(Orn, theta1); <span class="comment">% derivative of rpy wrp theta 1</span>
+JOrn2 = diff(Orn, theta2);
+JOrn3 = diff(Orn, theta3);
+JOrn4 = diff(Orn, d4);
+JOrn = [JOrn1 JOrn2 JOrn3 JOrn4];
+Jdiff = [Jxyz; JOrn]
+
+<span class="comment">% Using Siciliano</span>
+Jxyzs1 = cross(R01(:,3), P04 - P01);
+Jxyzs2 = cross(R02(:,3), P04 - P02);
+Jxyzs3 = cross(R03(:,3), P04 - P03);
+Jxyzs4 = R04(:,3);
+Jxyzs = [Jxyzs1 Jxyzs2 Jxyzs3 Jxyzs4];
+JOrns1 = R01(:,3);
+JOrns2 = R02(:,3);
+JOrns3 = R03(:,3);
+JOrns4 = zeros(3,1);
+JOrns = [JOrns1 JOrns2 JOrns3 JOrns4];
+Jdiffs = [Jxyzs; JOrns]
+</pre><pre class="codeoutput"> 
+scara_robot = 
+ 
+scara_robot:: 4 axis, RRRP, modDH, slowRNE, Symbolic             
++---+-----------+-----------+-----------+-----------+-----------+
+| j |     theta |         d |         a |     alpha |    offset |
++---+-----------+-----------+-----------+-----------+-----------+
+|  1|         q1|         d1|          0|          0|          0|
+|  2|         q2|          0|         l1|          0|          0|
+|  3|         q3|          0|         l2|          0|          0|
+|  4|          0|         q4|          0|          0|          0|
++---+-----------+-----------+-----------+-----------+-----------+
+ 
+ 
+[cos(theta1 + theta2 + theta3), -sin(theta1 + theta2 + theta3), 0, l2*cos(theta1 + theta2) + l1*cos(theta1)]
+[sin(theta1 + theta2 + theta3),  cos(theta1 + theta2 + theta3), 0, l2*sin(theta1 + theta2) + l1*sin(theta1)]
+[                            0,                              0, 1,                                  d1 + d4]
+[                            0,                              0, 0,                                        1]
+ 
+ 
+J4_VP =
+ 
+[sin(conj(theta3))*(l2 + l1*cos(conj(theta2))) + l1*cos(conj(theta3))*sin(conj(theta2)), l2*sin(conj(theta3)), 0, 0]
+[cos(conj(theta3))*(l2 + l1*cos(conj(theta2))) - l1*sin(conj(theta2))*sin(conj(theta3)), l2*cos(conj(theta3)), 0, 0]
+[                                                                                     0,                    0, 0, 1]
+[                                                                                     0,                    0, 0, 0]
+[                                                                                     0,                    0, 0, 0]
+[                                                                                     1,                    1, 1, 0]
+ 
+ 
+J0_VP =
+ 
+[cos(theta1 + theta2 + theta3)*(sin(conj(theta3))*(l2 + l1*cos(conj(theta2))) + l1*cos(conj(theta3))*sin(conj(theta2))) - sin(theta1 + theta2 + theta3)*(cos(conj(theta3))*(l2 + l1*cos(conj(theta2))) - l1*sin(conj(theta2))*sin(conj(theta3))), -l2*sin(theta1 + theta2 + theta3 - conj(theta3)), 0, 0]
+[cos(theta1 + theta2 + theta3)*(cos(conj(theta3))*(l2 + l1*cos(conj(theta2))) - l1*sin(conj(theta2))*sin(conj(theta3))) + sin(theta1 + theta2 + theta3)*(sin(conj(theta3))*(l2 + l1*cos(conj(theta2))) + l1*cos(conj(theta3))*sin(conj(theta2))),  l2*cos(theta1 + theta2 + theta3 - conj(theta3)), 0, 0]
+[                                                                                                                                                                                                                                              0,                                                0, 0, 1]
+[                                                                                                                                                                                                                                              0,                                                0, 0, 0]
+[                                                                                                                                                                                                                                              0,                                                0, 0, 0]
+[                                                                                                                                                                                                                                              1,                                                1, 1, 0]
+ 
+ 
+J4_FP =
+ 
+[- l2*sin(theta1 + theta2) - l1*sin(theta1), -l2*sin(theta1 + theta2), 0, 0]
+[  l2*cos(theta1 + theta2) + l1*cos(theta1),  l2*cos(theta1 + theta2), 0, 0]
+[                                         0,                        0, 0, 1]
+[                                         0,                        0, 0, 0]
+[                                         0,                        0, 0, 0]
+[                                         1,                        1, 1, 0]
+ 
+ 
+Jdiff =
+ 
+[- l2*sin(theta1 + theta2) - l1*sin(theta1), -l2*sin(theta1 + theta2), 0, 0]
+[  l2*cos(theta1 + theta2) + l1*cos(theta1),  l2*cos(theta1 + theta2), 0, 0]
+[                                         0,                        0, 0, 1]
+[                                         0,                        0, 0, 0]
+[                                         0,                        0, 0, 0]
+[                                         1,                        1, 1, 0]
+ 
+ 
+Jdiffs =
+ 
+[- l2*sin(theta1 + theta2) - l1*sin(theta1), -l2*sin(theta1 + theta2), 0, 0]
+[  l2*cos(theta1 + theta2) + l1*cos(theta1),  l2*cos(theta1 + theta2), 0, 0]
+[                                         0,                        0, 0, 1]
+[                                         0,                        0, 0, 0]
+[                                         0,                        0, 0, 0]
+[                                         1,                        1, 1, 0]
+ 
+</pre><h2 id="2">Singularities</h2><pre class="codeinput"><span class="comment">% POSE DEFINITION</span>
+J_reduced = [Jdiff(1:3,: ); Jdiff(6,:)];
+find_singularity = simplify(det(J_reduced));
+sol1 = solve(find_singularity == 0, theta2)
+sol2 = solve([find_singularity == 0, theta2 ~= sol1], theta2)
+sol3 = solve([find_singularity == 0, theta2 ~= sol1, theta2 ~= sol2], theta2)
+
+<span class="comment">% IMPLICATIONS</span>
+<span class="comment">% The following are the implications of the singular configuration:</span>
+<span class="comment">% 1) The manipulator loses one degree of freedom.</span>
+<span class="comment">%    As a result, the end effector can only move along the tangent direction of the arm.</span>
+<span class="comment">%    Movement along the radial direction is not possible.</span>
+<span class="comment">% 2) In this singular configuration,</span>
+<span class="comment">%    it is possible to apply a finite force to the end effector that does not produce any torque at the robot's joints.</span>
+<span class="comment">%    Consequently, the manipulator can "lock up."</span>
+<span class="comment">% 3) The determinant of the Jacobian matrix is zero.</span>
+<span class="comment">% 4) theta2 = -pi so the manipulator folds back from the other direction</span>
+</pre><pre class="codeoutput"> 
+sol1 =
+ 
+0
+ 
+ 
+sol2 =
+ 
+pi
+ 
+ 
+sol3 =
+ 
+-pi
+ 
+</pre><h2 id="3">Jacobian Ellipsoid</h2><pre class="codeinput"><span class="comment">% From TA posted code:</span>
+close <span class="string">all</span>; clear <span class="string">all</span>; clc;
+
+syms <span class="string">l1</span> <span class="string">l2</span> <span class="string">theta1</span> <span class="string">theta2</span>
+alpha = [0, 0];
+a = [l1, l2];
+d = [0, 0];
+L(1) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(1), <span class="string">'a'</span>, a(1), <span class="string">'d'</span>, d(1), <span class="string">'standard'</span>);
+L(2) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(2), <span class="string">'a'</span>, a(2), <span class="string">'d'</span>, d(2), <span class="string">'standard'</span>);
+RR_robot = SerialLink(L, <span class="string">'name'</span>, <span class="string">'RR_robot'</span>);
+
+<span class="comment">% Define Jacobian Matrix</span>
+q_sym = [theta1 theta2];
+T01 = RR_robot.A(1, q_sym);
+T12 = RR_robot.A(2, q_sym);
+T02 = simplify(T01*T12);
+[R01, P01] = tr2rt(T01); R10 = transpose(R01);
+[R12, P12] = tr2rt(T12); R21 = transpose(R12);
+[R02, P02] = tr2rt(simplify(T01*T12));
+Jxyz1 = diff(P02, theta1);
+Jxyz2 = diff(P02, theta2);
+Jxyz = [Jxyz1 Jxyz2];
+roll = 0;
+pitch = 0;
+yaw = theta1 + theta2;
+Orn = [roll; pitch; yaw];
+JOrn1 = diff(Orn, theta1);
+JOrn2 = diff(Orn, theta2);
+JOrn = [JOrn1 JOrn2];
+Jdiff = [Jxyz; JOrn]
+
+<span class="comment">% Define eigenvalues and eigenvectors for each config</span>
+
+<span class="comment">% Config 1: L1 = 0.25, L2 = 0.75</span>
+config1 = subs(Jdiff, [l1,l2,theta1,theta2], [0.25, 0.75, 0, 0]);
+<span class="comment">% Get reduced Jacobian</span>
+Jconfig1 = config1(1:2, 1:2)
+Jconfig1_T = transpose(Jconfig1);
+<span class="comment">% Get V1 and D1</span>
+[V1,D1] = eig(Jconfig1*Jconfig1_T)
+
+<span class="comment">% Config 2: L1 = 0.5, L2 = 0.5</span>
+config2 = subs(Jdiff, [l1,l2,theta1,theta2], [0.5, 0.5, 0, 0]);
+<span class="comment">% Get reduced Jacobian</span>
+Jconfig2 = config2(1:2, 1:2)
+Jconfig2_T = transpose(Jconfig2);
+<span class="comment">% Get V2 and D2</span>
+[V2,D2] = eig(Jconfig2*Jconfig2_T)
+
+<span class="comment">% Config 3: L1 = 0.75, L2 = 0.25</span>
+config3 = subs(Jdiff, [l1,l2,theta1,theta2], [0.75, 0.25, 0, 0]);
+<span class="comment">% Get reduced Jacobian</span>
+Jconfig3 = config3(1:2, 1:2)
+Jconfig3_T = transpose(Jconfig3);
+<span class="comment">% Get V3 and D3</span>
+[V3,D3] = eig(Jconfig3*Jconfig3_T)
+
+<span class="comment">% Plot</span>
+
+<span class="comment">% Config 1</span>
+alpha = [0, 0];
+a = [0.25, 0.75];
+d = [0, 0];
+
+L(1) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(1), <span class="string">'a'</span>, a(1), <span class="string">'d'</span>, d(1), <span class="string">'standard'</span>);
+L(2) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(2), <span class="string">'a'</span>, a(2), <span class="string">'d'</span>, d(2), <span class="string">'standard'</span>);
+
+RR_robot = SerialLink(L, <span class="string">'name'</span>, <span class="string">'RR_robot'</span>);
+
+<span class="comment">% can reach from 0.5 to 1</span>
+q1 = zeros(6,2);
+<span class="comment">% to reach x = 0.5, theta1 = pi, theta2 = 0</span>
+q1(1,:) = [pi, 0];
+<span class="comment">% to reach x = 1, theta1 = 0, theta2 = 0</span>
+q1(6,:) = [0, 0];
+
+<span class="keyword">for</span> i = 2:5
+q1(i,:) = ik(0.25, 0.75, 0.5+(i-1)*0.1);
+figure(i-1);
+xlim([-inf inf]);
+ylim([-inf inf]);
+zlim([-inf inf]);
+RR_robot.plot(q1(i,:))
+RR_robot.fellipse(q1(i,:))
+RR_robot.vellipse(q1(i,:))
+<span class="comment">% saveas(figure(i-1),sprintf('config1_%d.jpg',i-1))</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Config 2</span>
+alpha = [0, 0];
+a = [0.5, 0.5];
+d = [0, 0];
+
+L(1) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(1), <span class="string">'a'</span>, a(1), <span class="string">'d'</span>, d(1), <span class="string">'standard'</span>);
+L(2) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(2), <span class="string">'a'</span>, a(2), <span class="string">'d'</span>, d(2), <span class="string">'standard'</span>);
+
+RR_robot2 = SerialLink(L, <span class="string">'name'</span>, <span class="string">'RR_robot'</span>);
+
+<span class="comment">% can reach from 0 to 1</span>
+q2 = zeros(11,2);
+<span class="comment">% to reach x = 0, theta1 = 0, theta2 = pi</span>
+q2(1,:) = [0, pi];
+<span class="comment">% to reach x = 1, theta1 = 0, theta2 = 0</span>
+q2(11,:) = [0, 0];
+
+<span class="keyword">for</span> i = 2:10
+q2(i,:) = ik(0.5, 0.5, (i-1)*0.1);
+figure(i-1);
+xlim([-inf inf]);
+ylim([-inf inf]);
+zlim([-inf inf]);
+RR_robot2.plot(q2(i,:))
+RR_robot2.fellipse(q2(i,:))
+RR_robot2.vellipse(q2(i,:))
+<span class="comment">% saveas(figure(i-1),sprintf('config2_%d.jpg',i-1))</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Config 3</span>
+alpha = [0, 0];
+a = [0.75, 0.25];
+d = [0, 0];
+L(1) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(1), <span class="string">'a'</span>, a(1), <span class="string">'d'</span>, d(1), <span class="string">'standard'</span>);
+L(2) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(2), <span class="string">'a'</span>, a(2), <span class="string">'d'</span>, d(2), <span class="string">'standard'</span>);
+
+RR_robot3 = SerialLink(L, <span class="string">'name'</span>, <span class="string">'RR_robot'</span>);
+
+<span class="comment">% can reach from 0.5 to 1</span>
+q3 = zeros(6,2);
+<span class="comment">% to reach x = 0, theta1 = 0, theta2 = pi</span>
+q3(1,:) = [0, pi];
+<span class="comment">% to reach x = 1, theta1 = 0, theta2 = 0</span>
+q3(6,:) = [0, 0];
+
+<span class="keyword">for</span> i = 2:5
+ q3(i,:) = ik(0.75, 0.25, 0.5+(i-1)*0.1);
+ figure(i-1);
+ xlim([-inf inf]);
+ ylim([-inf inf]);
+ zlim([-inf inf]);
+ RR_robot3.plot(q3(i,:))
+ RR_robot3.fellipse(q3(i,:))
+ RR_robot3.vellipse(q3(i,:))
+<span class="comment">%  saveas(figure(i-1),sprintf('config3_%d.jpg',i-1))</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Best position for configurations</span>
+
+<span class="comment">% Config 1</span>
+w1 = zeros(1, 4);
+<span class="keyword">for</span> i = 6:9
+    w1(1, i-5) = w_func(0.25, 0.75, i*0.1);
+<span class="keyword">end</span>
+
+max = w1(1,1);
+<span class="keyword">for</span> i = 1:4
+<span class="keyword">if</span> w1(1,i) &gt; max
+max = w1(1,i);
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+pos = find(w1 == max)
+
+<span class="comment">% ANSWER: best position for configuration 1 is x = 0.8</span>
+
+<span class="comment">% Config 2</span>
+w2 = zeros(1, 9);
+<span class="keyword">for</span> i = 1:9
+w2(1, i) = w_func(0.5, 0.5, i*0.1);
+<span class="keyword">end</span>
+
+max = w2(1,1);
+<span class="keyword">for</span> i = 1:9
+<span class="keyword">if</span> w2(1,i) &gt; max
+max = w2(1,i);
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+pos = find(w2 == max)
+
+<span class="comment">% ANSWER: best position for configuration 2 is x = 0.7</span>
+
+<span class="comment">% Config 3</span>
+w3 = zeros(1, 4);
+<span class="keyword">for</span> i = 6:9
+ w3(1, i-5) = w_func(0.75, 0.25, i*0.1);
+<span class="keyword">end</span>
+max = w3(1,1);
+<span class="keyword">for</span> i = 1:4
+ <span class="keyword">if</span> w3(1,i) &gt; max
+ max = w3(1,i);
+ <span class="keyword">end</span>
+<span class="keyword">end</span>
+pos = find(w3 == max)
+
+<span class="comment">% ANSWER: best position for configuration 3 is x = 0.8</span>
+</pre><pre class="codeoutput"> 
+Jdiff =
+ 
+[- l2*sin(theta1 + theta2) - l1*sin(theta1), -l2*sin(theta1 + theta2)]
+[  l2*cos(theta1 + theta2) + l1*cos(theta1),  l2*cos(theta1 + theta2)]
+[                                         0,                        0]
+[                                         0,                        0]
+[                                         0,                        0]
+[                                         1,                        1]
+ 
+ 
+Jconfig1 =
+ 
+[0,   0]
+[1, 3/4]
+ 
+ 
+V1 =
+ 
+[1, 0]
+[0, 1]
+ 
+ 
+D1 =
+ 
+[0,     0]
+[0, 25/16]
+ 
+ 
+Jconfig2 =
+ 
+[0,   0]
+[1, 1/2]
+ 
+ 
+V2 =
+ 
+[1, 0]
+[0, 1]
+ 
+ 
+D2 =
+ 
+[0,   0]
+[0, 5/4]
+ 
+ 
+Jconfig3 =
+ 
+[0,   0]
+[1, 1/4]
+ 
+ 
+V3 =
+ 
+[1, 0]
+[0, 1]
+ 
+ 
+D3 =
+ 
+[0,     0]
+[0, 17/16]
+ 
+</pre><img vspace="5" hspace="5" src="project3_01.png" alt=""> <img vspace="5" hspace="5" src="project3_02.png" alt=""> <img vspace="5" hspace="5" src="project3_03.png" alt=""> <img vspace="5" hspace="5" src="project3_04.png" alt=""> <img vspace="5" hspace="5" src="project3_05.png" alt=""> <img vspace="5" hspace="5" src="project3_06.png" alt=""> <img vspace="5" hspace="5" src="project3_07.png" alt=""> <img vspace="5" hspace="5" src="project3_08.png" alt=""> <img vspace="5" hspace="5" src="project3_09.png" alt=""> <h2 id="4">Arm Optimization</h2><pre class="codeinput">close <span class="string">all</span>; clear <span class="string">all</span>; clc;
+
+<span class="comment">% Brute Force</span>
+syms <span class="string">th1</span> <span class="string">th2</span> <span class="string">th3</span> <span class="string">L1</span> <span class="string">L2</span>
+<span class="comment">% Modified DH parameters</span>
+alpha = [0, 0, 0, 0];
+a = [0, L1, L2, 0];
+d = [0.4, 0, 0, -0.15];
+th = [th1, th2, th3, 0];
+L(1) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(1), <span class="string">'a'</span>, a(1), <span class="string">'d'</span>, d(1), <span class="string">'modified'</span>);
+L(2) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(2), <span class="string">'a'</span>, a(2), <span class="string">'d'</span>, d(2), <span class="string">'modified'</span>);
+L(3) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(3), <span class="string">'a'</span>, a(3), <span class="string">'d'</span>, d(3), <span class="string">'modified'</span>);
+L(4) = Link(<span class="string">'prismatic'</span>, <span class="string">'alpha'</span>, alpha(4), <span class="string">'a'</span>, a(4), <span class="string">'theta'</span>, 0, <span class="string">'modified'</span>);
+SCARA = SerialLink(L, <span class="string">'name'</span>, <span class="string">'SCARA'</span>)
+
+<span class="comment">% Joint angle</span>
+syms <span class="string">q1</span> <span class="string">q2</span> <span class="string">q3</span> <span class="string">d4</span>
+q = [q1 q2 q3 0.15];
+<span class="comment">% Transformations, rotations, translations</span>
+T01 = SCARA.A(1,q);
+T12 = SCARA.A(2,q);
+T23 = SCARA.A(3,q);
+T34 = SCARA.A(4,q);
+T04 = SCARA.A([1 2 3 4],q);
+T04 = simplify(T04)
+
+[R01, P01] = tr2rt(T01); R10 = transpose(R01);
+[R12, P12] = tr2rt(T12); R21 = transpose(R12);
+[R23, P23] = tr2rt(T23); R32 = transpose(R23);
+[R34, P34] = tr2rt(T34); R43 = transpose(R34);
+[R04, P04] = tr2rt(T04);
+[R02, P02] = tr2rt(simplify(T01*T12));
+[R03, P03] = tr2rt(simplify(T01*T12*T23));
+Jxyzs1 = cross(R01(:,3), P04 - P01);
+Jxyzs2 = cross(R02(:,3), P04 - P02);
+Jxyzs3 = cross(R03(:,3), P04 - P03);
+Jxyzs4 = R04(:,3);
+Jxyzs = [Jxyzs1 Jxyzs2 Jxyzs3 Jxyzs4]
+
+JOrns1 = R01(:,3);
+JOrns2 = R02(:,3);
+JOrns3 = R03(:,3);
+JOrns4 = zeros(3,1);
+JOrns = [JOrns1 JOrns2 JOrns3 JOrns4];
+Jdiffs = [Jxyzs; JOrns];
+J0 = [Jdiffs(1:2,1:3); Jdiffs(6,1:3)]
+
+J0T = transpose(J0);
+JJT = simplify(J0*J0T)
+
+l1 = [0.01:0.01:0.5];
+l2 = [0.01:0.01:0.5];
+h = 0.1;
+w = 0.14;
+d = 0.2;
+count = 0;
+kappa_array = [];
+C= [];
+l1_plot = [];
+l2_plot = [];
+X= linspace(d, d+w, 15);
+Y= linspace(-h/2, h/2, 11);
+<span class="keyword">for</span> i=1:length(l1)
+    <span class="keyword">for</span> j=1:length(l2)
+        kappa_array = [];
+        <span class="keyword">if</span> (abs(l1(i)-l2(j)) &lt; d) &amp;&amp; (l1(i)+l2(j) &gt; ((d+w)^2 + (h/2)^2)^0.5)
+            count = count+1;
+            <span class="keyword">for</span> m=1:length(X)
+                <span class="keyword">for</span> n=1:length(Y)
+                    [theta] = inverseKinematicsScara3(X(m), Y(n), l1(i), l2(j));
+                    JJTsubs = subs(JJT, [q1, q2, L1, L2], [theta(1), theta(2), l1(i), l2(j)]);
+                    JJTsubs = vpa(JJTsubs);
+                    lambda = eig(JJTsubs);
+                    lambda_max = max(lambda);
+                    lambda_min = min(lambda);
+                    kappa = vpa((lambda_min/lambda_max)^0.5);
+                    kappa_array = [kappa_array; kappa];
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            C(count) = (sum(kappa_array)*min(kappa_array))/(l1(i)^3 + l2(j)^3);
+            l1_plot(count) = l1(i);
+            l2_plot(count) = l2(j);
+            fprintf(<span class="string">'Count = %d \t C-Value = %f \n'</span>,count, C(count));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+<span class="comment">% Plot values of Goal function</span>
+scatter3(l1_plot,l2_plot,C, <span class="string">'filled'</span>, <span class="string">'MarkerEdgeColor'</span>,<span class="string">'k'</span>,<span class="string">'MarkerFaceColor'</span>,[0 .75 .75])
+xlabel(<span class="string">'L1'</span>, <span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+ylabel(<span class="string">'L2'</span>, <span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+zlabel(<span class="string">'C'</span>, <span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+
+<span class="comment">% Find optimal values</span>
+[Cmax,Imax] = max(C)
+L1_max = l1_plot(Imax)
+L2_max = l2_plot(Imax)
+
+<span class="comment">% Plot value of Ki for entire workspace for best and worst combinations</span>
+kappa_max = [];
+<span class="keyword">for</span> m=1:length(X)
+    <span class="keyword">for</span> n=1:length(Y)
+        [theta] = inverseKinematicsScara3(X(m), Y(n), L1_max, L2_max);
+        JJTsubs = subs(JJT, [q1, q2, L1, L2], [theta(1), theta(2), L1_max, L2_max]);
+        JJTsubs = vpa(JJTsubs);
+        lambda = eig(JJTsubs);
+        lambda_max = max(lambda);
+        lambda_min = min(lambda);
+        kappa = vpa((lambda_min/lambda_max)^0.5);
+        kappa_max(m,n) = kappa;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+surf(X,Y, kappa_max')
+xlabel(<span class="string">'X(m)'</span>, <span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+ylabel(<span class="string">'Y(m)'</span>, <span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+zlabel(<span class="string">'K'</span>, <span class="string">'FontWeight'</span>,<span class="string">'bold'</span>, <span class="string">'FontSize'</span>, 14)
+
+<span class="comment">% Here, we can see that the plot is symmetric</span>
+<span class="comment">% Based on the C_max, the best manipulability point is at x = 0.24</span>
+<span class="comment">% while the worst manipulability point is at x = 0.20</span>
+</pre><pre class="codeoutput"> 
+SCARA = 
+ 
+SCARA:: 4 axis, RRRP, modDH, slowRNE, Symbolic                   
++---+-----------+-----------+-----------+-----------+-----------+
+| j |     theta |         d |         a |     alpha |    offset |
++---+-----------+-----------+-----------+-----------+-----------+
+|  1|         q1|        0.4|          0|          0|          0|
+|  2|         q2|          0|         L1|          0|          0|
+|  3|         q3|          0|         L2|          0|          0|
+|  4|          0|         q4|          0|          0|          0|
++---+-----------+-----------+-----------+-----------+-----------+
+ 
+ 
+[cos(q1 + q2 + q3), -sin(q1 + q2 + q3), 0, L2*cos(q1 + q2) + L1*cos(q1)]
+[sin(q1 + q2 + q3),  cos(q1 + q2 + q3), 0, L2*sin(q1 + q2) + L1*sin(q1)]
+[                0,                  0, 1,                        11/20]
+[                0,                  0, 0,                            1]
+ 
+ 
+Jxyzs =
+ 
+[- L2*sin(q1 + q2) - L1*sin(q1), -L2*sin(q1 + q2), 0, 0]
+[  L2*cos(q1 + q2) + L1*cos(q1),  L2*cos(q1 + q2), 0, 0]
+[                             0,                0, 0, 1]
+ 
+ 
+J0 =
+ 
+[- L2*sin(q1 + q2) - L1*sin(q1), -L2*sin(q1 + q2), 0]
+[  L2*cos(q1 + q2) + L1*cos(q1),  L2*cos(q1 + q2), 0]
+[                             1,                1, 1]
+ 
+ 
+JJT =
+ 
+[             L2^2*sin(q1 + q2)^2 + (L2*sin(q1 + q2) + L1*sin(q1))^2, - sin(2*q1 + 2*q2)*L2^2 - L1*sin(2*q1 + q2)*L2 - (L1^2*sin(2*q1))/2, - 2*L2*sin(q1 + q2) - L1*sin(q1)]
+[- sin(2*q1 + 2*q2)*L2^2 - L1*sin(2*q1 + q2)*L2 - (L1^2*sin(2*q1))/2,              L2^2*cos(q1 + q2)^2 + (L2*cos(q1 + q2) + L1*cos(q1))^2,   2*L2*cos(q1 + q2) + L1*cos(q1)]
+[                                   - 2*L2*sin(q1 + q2) - L1*sin(q1),                                      2*L2*cos(q1 + q2) + L1*cos(q1),                                3]
+ 
+Count = 1 	 C-Value = 2.601856 
+Count = 2 	 C-Value = 3.518745 
+Count = 3 	 C-Value = 5.045907 
+Count = 4 	 C-Value = 3.523451 
+Count = 5 	 C-Value = 4.524515 
+Count = 6 	 C-Value = 6.597086 
+Count = 7 	 C-Value = 7.460594 
+Count = 8 	 C-Value = 5.812717 
+Count = 9 	 C-Value = 3.685446 
+Count = 10 	 C-Value = 5.623201 
+Count = 11 	 C-Value = 8.294849 
+Count = 12 	 C-Value = 9.512729 
+Count = 13 	 C-Value = 9.956593 
+Count = 14 	 C-Value = 8.093066 
+Count = 15 	 C-Value = 5.962094 
+Count = 16 	 C-Value = 3.750795 
+Count = 17 	 C-Value = 6.793851 
+Count = 18 	 C-Value = 10.121806 
+Count = 19 	 C-Value = 11.736132 
+Count = 20 	 C-Value = 12.437002 
+Count = 21 	 C-Value = 12.537155 
+Count = 22 	 C-Value = 10.421550 
+Count = 23 	 C-Value = 8.174658 
+Count = 24 	 C-Value = 5.986129 
+Count = 25 	 C-Value = 3.748998 
+Count = 26 	 C-Value = 7.992677 
+Count = 27 	 C-Value = 12.025732 
+Count = 28 	 C-Value = 14.085594 
+Count = 29 	 C-Value = 15.086243 
+Count = 30 	 C-Value = 15.383041 
+Count = 31 	 C-Value = 15.180689 
+Count = 32 	 C-Value = 12.793524 
+Count = 33 	 C-Value = 10.394645 
+Count = 34 	 C-Value = 8.115930 
+Count = 35 	 C-Value = 5.922154 
+Count = 36 	 C-Value = 3.699259 
+Count = 37 	 C-Value = 0.000000 
+Count = 38 	 C-Value = 9.151388 
+Count = 39 	 C-Value = 13.918387 
+Count = 40 	 C-Value = 16.473978 
+Count = 41 	 C-Value = 17.828061 
+Count = 42 	 C-Value = 18.370828 
+Count = 43 	 C-Value = 18.328623 
+Count = 44 	 C-Value = 17.856073 
+Count = 45 	 C-Value = 15.185964 
+Count = 46 	 C-Value = 12.624748 
+Count = 47 	 C-Value = 10.221220 
+Count = 48 	 C-Value = 7.958937 
+Count = 49 	 C-Value = 5.795879 
+Count = 50 	 C-Value = 3.615293 
+Count = 51 	 C-Value = 0.000000 
+Count = 52 	 C-Value = 10.178532 
+Count = 53 	 C-Value = 15.675229 
+Count = 54 	 C-Value = 18.770978 
+Count = 55 	 C-Value = 20.539477 
+Count = 56 	 C-Value = 21.392016 
+Count = 57 	 C-Value = 21.569476 
+Count = 58 	 C-Value = 21.239407 
+Count = 59 	 C-Value = 20.469239 
+Count = 60 	 C-Value = 17.567836 
+Count = 61 	 C-Value = 14.847498 
+Count = 62 	 C-Value = 12.310261 
+Count = 63 	 C-Value = 9.946495 
+Count = 64 	 C-Value = 7.733583 
+Count = 65 	 C-Value = 5.626051 
+Count = 66 	 C-Value = 3.507293 
+Count = 67 	 C-Value = 0.000000 
+Count = 68 	 C-Value = 10.966514 
+Count = 69 	 C-Value = 17.141345 
+Count = 70 	 C-Value = 20.806520 
+Count = 71 	 C-Value = 23.052022 
+Count = 72 	 C-Value = 24.289518 
+Count = 73 	 C-Value = 24.763283 
+Count = 74 	 C-Value = 24.647489 
+Count = 75 	 C-Value = 24.076855 
+Count = 76 	 C-Value = 22.967902 
+Count = 77 	 C-Value = 19.903959 
+Count = 78 	 C-Value = 17.036943 
+Count = 79 	 C-Value = 14.370187 
+Count = 80 	 C-Value = 11.897311 
+Count = 81 	 C-Value = 9.603189 
+Count = 82 	 C-Value = 7.461901 
+Count = 83 	 C-Value = 5.426687 
+Count = 84 	 C-Value = 3.382973 
+Count = 85 	 C-Value = 0.000000 
+Count = 86 	 C-Value = 11.405673 
+Count = 87 	 C-Value = 18.144431 
+Count = 88 	 C-Value = 22.381267 
+Count = 89 	 C-Value = 25.159569 
+Count = 90 	 C-Value = 26.862705 
+Count = 91 	 C-Value = 27.722768 
+Count = 92 	 C-Value = 27.911412 
+Count = 93 	 C-Value = 27.566385 
+Count = 94 	 C-Value = 26.801929 
+Count = 95 	 C-Value = 25.356719 
+Count = 96 	 C-Value = 22.156884 
+Count = 97 	 C-Value = 19.162907 
+Count = 98 	 C-Value = 16.379435 
+Count = 99 	 C-Value = 13.802327 
+Count = 100 	 C-Value = 11.420369 
+Count = 101 	 C-Value = 9.215501 
+Count = 102 	 C-Value = 7.160378 
+Count = 103 	 C-Value = 5.208383 
+Count = 104 	 C-Value = 3.248220 
+Count = 105 	 C-Value = 0.000000 
+Count = 106 	 C-Value = 11.414731 
+Count = 107 	 C-Value = 18.516366 
+Count = 108 	 C-Value = 23.278647 
+Count = 109 	 C-Value = 26.630088 
+Count = 110 	 C-Value = 28.878608 
+Count = 111 	 C-Value = 30.222236 
+Count = 112 	 C-Value = 30.818961 
+Count = 113 	 C-Value = 30.802450 
+Count = 114 	 C-Value = 30.288302 
+Count = 115 	 C-Value = 29.377062 
+Count = 116 	 C-Value = 27.590607 
+Count = 117 	 C-Value = 24.287894 
+Count = 118 	 C-Value = 21.192965 
+Count = 119 	 C-Value = 18.312227 
+Count = 120 	 C-Value = 15.643754 
+Count = 121 	 C-Value = 13.179219 
+Count = 122 	 C-Value = 10.904901 
+Count = 123 	 C-Value = 8.801481 
+Count = 124 	 C-Value = 6.841419 
+Count = 125 	 C-Value = 4.979171 
+Count = 126 	 C-Value = 3.107527 
+Count = 127 	 C-Value = -0.000000 
+Count = 128 	 C-Value = 10.994483 
+Count = 129 	 C-Value = 18.172437 
+Count = 130 	 C-Value = 23.293531 
+Count = 131 	 C-Value = 27.196758 
+Count = 132 	 C-Value = 30.076153 
+Count = 133 	 C-Value = 32.008612 
+Count = 134 	 C-Value = 33.125616 
+Count = 135 	 C-Value = 33.553057 
+Count = 136 	 C-Value = 33.403345 
+Count = 137 	 C-Value = 32.777723 
+Count = 138 	 C-Value = 31.767063 
+Count = 139 	 C-Value = 29.623632 
+Count = 140 	 C-Value = 26.257498 
+Count = 141 	 C-Value = 23.093492 
+Count = 142 	 C-Value = 20.140612 
+Count = 143 	 C-Value = 17.399664 
+Count = 144 	 C-Value = 14.865194 
+Count = 145 	 C-Value = 12.526808 
+Count = 146 	 C-Value = 10.369777 
+Count = 147 	 C-Value = 8.374605 
+Count = 148 	 C-Value = 6.514345 
+Count = 149 	 C-Value = 4.745128 
+Count = 150 	 C-Value = 2.964314 
+Count = 151 	 C-Value = 10.224999 
+Count = 152 	 C-Value = 17.200325 
+Count = 153 	 C-Value = 22.433155 
+Count = 154 	 C-Value = 26.663216 
+Count = 155 	 C-Value = 30.085281 
+Count = 156 	 C-Value = 32.763664 
+Count = 157 	 C-Value = 34.553976 
+Count = 158 	 C-Value = 35.555620 
+Count = 159 	 C-Value = 35.897683 
+Count = 160 	 C-Value = 35.682257 
+Count = 161 	 C-Value = 35.001415 
+Count = 162 	 C-Value = 33.939105 
+Count = 163 	 C-Value = 31.408592 
+Count = 164 	 C-Value = 28.025590 
+Count = 165 	 C-Value = 24.830252 
+Count = 166 	 C-Value = 21.835579 
+Count = 167 	 C-Value = 19.046080 
+Count = 168 	 C-Value = 16.459734 
+Count = 169 	 C-Value = 14.069462 
+Count = 170 	 C-Value = 11.864125 
+Count = 171 	 C-Value = 9.828931 
+Count = 172 	 C-Value = 7.944883 
+Count = 173 	 C-Value = 6.186123 
+Count = 174 	 C-Value = 4.510816 
+Count = 175 	 C-Value = 2.821162 
+Count = 176 	 C-Value = 9.213303 
+Count = 177 	 C-Value = 15.763008 
+Count = 178 	 C-Value = 20.897961 
+Count = 179 	 C-Value = 25.239407 
+Count = 180 	 C-Value = 28.935332 
+Count = 181 	 C-Value = 32.034707 
+Count = 182 	 C-Value = 34.549055 
+Count = 183 	 C-Value = 36.431163 
+Count = 184 	 C-Value = 37.470924 
+Count = 185 	 C-Value = 37.817677 
+Count = 186 	 C-Value = 37.605569 
+Count = 187 	 C-Value = 36.926717 
+Count = 188 	 C-Value = 35.861757 
+Count = 189 	 C-Value = 32.896637 
+Count = 190 	 C-Value = 29.551529 
+Count = 191 	 C-Value = 26.368786 
+Count = 192 	 C-Value = 23.367733 
+Count = 193 	 C-Value = 20.558124 
+Count = 194 	 C-Value = 17.942368 
+Count = 195 	 C-Value = 15.517238 
+Count = 196 	 C-Value = 13.275154 
+Count = 197 	 C-Value = 11.205026 
+Count = 198 	 C-Value = 9.292564 
+Count = 199 	 C-Value = 7.519678 
+Count = 200 	 C-Value = 5.861897 
+Count = 201 	 C-Value = 4.279622 
+Count = 202 	 C-Value = 2.679996 
+Count = 203 	 C-Value = 8.065329 
+Count = 204 	 C-Value = 14.028660 
+Count = 205 	 C-Value = 18.896643 
+Count = 206 	 C-Value = 23.176974 
+Count = 207 	 C-Value = 26.973306 
+Count = 208 	 C-Value = 30.307104 
+Count = 209 	 C-Value = 33.176299 
+Count = 210 	 C-Value = 35.568474 
+Count = 211 	 C-Value = 37.453269 
+Count = 212 	 C-Value = 38.749865 
+Count = 213 	 C-Value = 39.254872 
+Count = 214 	 C-Value = 39.131206 
+Count = 215 	 C-Value = 38.518035 
+Count = 216 	 C-Value = 37.358917 
+Count = 217 	 C-Value = 34.037831 
+Count = 218 	 C-Value = 30.794573 
+Count = 219 	 C-Value = 27.674859 
+Count = 220 	 C-Value = 24.707855 
+Count = 221 	 C-Value = 21.910768 
+Count = 222 	 C-Value = 19.291881 
+Count = 223 	 C-Value = 16.852741 
+Count = 224 	 C-Value = 14.589788 
+Count = 225 	 C-Value = 12.495558 
+Count = 226 	 C-Value = 10.559460 
+Count = 227 	 C-Value = 8.768028 
+Count = 228 	 C-Value = 7.104320 
+Count = 229 	 C-Value = 5.545405 
+Count = 230 	 C-Value = 4.054015 
+Count = 231 	 C-Value = 2.542227 
+Count = 232 	 C-Value = 0.000000 
+Count = 233 	 C-Value = 6.871971 
+Count = 234 	 C-Value = 12.150258 
+Count = 235 	 C-Value = 16.624480 
+Count = 236 	 C-Value = 20.700761 
+Count = 237 	 C-Value = 24.447801 
+Count = 238 	 C-Value = 27.865336 
+Count = 239 	 C-Value = 30.934554 
+Count = 240 	 C-Value = 33.632625 
+Count = 241 	 C-Value = 35.935730 
+Count = 242 	 C-Value = 37.815068 
+Count = 243 	 C-Value = 39.225380 
+Count = 244 	 C-Value = 40.082362 
+Count = 245 	 C-Value = 40.196783 
+Count = 246 	 C-Value = 39.731333 
+Count = 247 	 C-Value = 37.854519 
+Count = 248 	 C-Value = 34.783949 
+Count = 249 	 C-Value = 31.715259 
+Count = 250 	 C-Value = 28.715314 
+Count = 251 	 C-Value = 25.827564 
+Count = 252 	 C-Value = 23.079491 
+Count = 253 	 C-Value = 20.487109 
+Count = 254 	 C-Value = 18.057969 
+Count = 255 	 C-Value = 15.793311 
+Count = 256 	 C-Value = 13.689658 
+Count = 257 	 C-Value = 11.739978 
+Count = 258 	 C-Value = 9.934414 
+Count = 259 	 C-Value = 8.260503 
+Count = 260 	 C-Value = 6.702566 
+Count = 261 	 C-Value = 5.239288 
+Count = 262 	 C-Value = 3.835744 
+Count = 263 	 C-Value = 2.408859 
+Count = 264 	 C-Value = 0.000000 
+Count = 265 	 C-Value = 5.701739 
+Count = 266 	 C-Value = 10.252011 
+Count = 267 	 C-Value = 14.250042 
+Count = 268 	 C-Value = 18.013629 
+Count = 269 	 C-Value = 21.586129 
+Count = 270 	 C-Value = 24.953485 
+Count = 271 	 C-Value = 28.085634 
+Count = 272 	 C-Value = 30.949538 
+Count = 273 	 C-Value = 33.513798 
+Count = 274 	 C-Value = 35.749283 
+Count = 275 	 C-Value = 37.626794 
+Count = 276 	 C-Value = 39.111728 
+Count = 277 	 C-Value = 40.155394 
+Count = 278 	 C-Value = 40.678362 
+Count = 279 	 C-Value = 40.290615 
+Count = 280 	 C-Value = 37.813435 
+Count = 281 	 C-Value = 35.094145 
+Count = 282 	 C-Value = 32.278242 
+Count = 283 	 C-Value = 29.459617 
+Count = 284 	 C-Value = 26.700289 
+Count = 285 	 C-Value = 24.041014 
+Count = 286 	 C-Value = 21.507623 
+Count = 287 	 C-Value = 19.115116 
+Count = 288 	 C-Value = 16.870512 
+Count = 289 	 C-Value = 14.774934 
+Count = 290 	 C-Value = 12.825156 
+Count = 291 	 C-Value = 11.014723 
+Count = 292 	 C-Value = 9.334630 
+Count = 293 	 C-Value = 7.773499 
+Count = 294 	 C-Value = 6.316966 
+Count = 295 	 C-Value = 4.945340 
+Count = 296 	 C-Value = 3.626001 
+Count = 297 	 C-Value = 2.280578 
+Count = 298 	 C-Value = 0.000000 
+Count = 299 	 C-Value = 4.599065 
+Count = 300 	 C-Value = 8.422823 
+Count = 301 	 C-Value = 11.903790 
+Count = 302 	 C-Value = 15.283209 
+Count = 303 	 C-Value = 18.586606 
+Count = 304 	 C-Value = 21.792976 
+Count = 305 	 C-Value = 24.867183 
+Count = 306 	 C-Value = 27.770711 
+Count = 307 	 C-Value = 30.466211 
+Count = 308 	 C-Value = 32.919357 
+Count = 309 	 C-Value = 35.098993 
+Count = 310 	 C-Value = 36.975759 
+Count = 311 	 C-Value = 38.519221 
+Count = 312 	 C-Value = 39.693507 
+Count = 313 	 C-Value = 40.208058 
+Count = 314 	 C-Value = 39.053618 
+Count = 315 	 C-Value = 37.212120 
+Count = 316 	 C-Value = 34.941236 
+Count = 317 	 C-Value = 32.456174 
+Count = 318 	 C-Value = 29.882151 
+Count = 319 	 C-Value = 27.302679 
+Count = 320 	 C-Value = 24.774249 
+Count = 321 	 C-Value = 22.334459 
+Count = 322 	 C-Value = 20.007242 
+Count = 323 	 C-Value = 17.806465 
+Count = 324 	 C-Value = 15.738579 
+Count = 325 	 C-Value = 13.804609 
+Count = 326 	 C-Value = 12.001635 
+Count = 327 	 C-Value = 10.323843 
+Count = 328 	 C-Value = 8.763134 
+Count = 329 	 C-Value = 7.309248 
+Count = 330 	 C-Value = 5.949133 
+Count = 331 	 C-Value = 4.664695 
+Count = 332 	 C-Value = 3.425542 
+Count = 333 	 C-Value = 2.157823 
+Count = 334 	 C-Value = 3.585652 
+Count = 335 	 C-Value = 6.716045 
+Count = 336 	 C-Value = 9.673966 
+Count = 337 	 C-Value = 12.633160 
+Count = 338 	 C-Value = 15.606163 
+Count = 339 	 C-Value = 18.569671 
+Count = 340 	 C-Value = 21.488330 
+Count = 341 	 C-Value = 24.322861 
+Count = 342 	 C-Value = 27.033898 
+Count = 343 	 C-Value = 29.584059 
+Count = 344 	 C-Value = 31.938954 
+Count = 345 	 C-Value = 34.067316 
+Count = 346 	 C-Value = 35.940244 
+Count = 347 	 C-Value = 37.310596 
+Count = 348 	 C-Value = 37.774272 
+Count = 349 	 C-Value = 37.721634 
+Count = 350 	 C-Value = 37.135702 
+Count = 351 	 C-Value = 36.015233 
+Count = 352 	 C-Value = 34.311271 
+Count = 353 	 C-Value = 32.232423 
+Count = 354 	 C-Value = 29.964564 
+Count = 355 	 C-Value = 27.616261 
+Count = 356 	 C-Value = 25.261443 
+Count = 357 	 C-Value = 22.950963 
+Count = 358 	 C-Value = 20.718958 
+Count = 359 	 C-Value = 18.587167 
+Count = 360 	 C-Value = 16.568120 
+Count = 361 	 C-Value = 14.667596 
+Count = 362 	 C-Value = 12.886499 
+Count = 363 	 C-Value = 11.222242 
+Count = 364 	 C-Value = 9.669685 
+Count = 365 	 C-Value = 8.221655 
+Count = 366 	 C-Value = 6.869005 
+Count = 367 	 C-Value = 5.599968 
+Count = 368 	 C-Value = 4.397982 
+Count = 369 	 C-Value = 3.234788 
+Count = 370 	 C-Value = 2.040842 
+Count = 371 	 C-Value = 2.657959 
+Count = 372 	 C-Value = 5.150160 
+Count = 373 	 C-Value = 7.607208 
+Count = 374 	 C-Value = 10.141193 
+Count = 375 	 C-Value = 12.754435 
+Count = 376 	 C-Value = 15.423987 
+Count = 377 	 C-Value = 18.117360 
+Count = 378 	 C-Value = 20.719522 
+Count = 379 	 C-Value = 23.209087 
+Count = 380 	 C-Value = 25.577525 
+Count = 381 	 C-Value = 27.780208 
+Count = 382 	 C-Value = 29.772560 
+Count = 383 	 C-Value = 31.509829 
+Count = 384 	 C-Value = 32.946853 
+Count = 385 	 C-Value = 34.038540 
+Count = 386 	 C-Value = 34.742181 
+Count = 387 	 C-Value = 35.022283 
+Count = 388 	 C-Value = 34.856609 
+Count = 389 	 C-Value = 34.238689 
+Count = 390 	 C-Value = 33.168702 
+Count = 391 	 C-Value = 31.597612 
+Count = 392 	 C-Value = 29.696499 
+Count = 393 	 C-Value = 27.628745 
+Count = 394 	 C-Value = 25.489343 
+Count = 395 	 C-Value = 23.343689 
+Count = 396 	 C-Value = 21.237135 
+Count = 397 	 C-Value = 19.200146 
+Count = 398 	 C-Value = 17.252007 
+Count = 399 	 C-Value = 15.403731 
+Count = 400 	 C-Value = 13.660357 
+Count = 401 	 C-Value = 12.022678 
+Count = 402 	 C-Value = 10.488474 
+Count = 403 	 C-Value = 9.053307 
+Count = 404 	 C-Value = 7.710930 
+Count = 405 	 C-Value = 6.453282 
+Count = 406 	 C-Value = 5.269823 
+Count = 407 	 C-Value = 4.145446 
+Count = 408 	 C-Value = 3.053902 
+Count = 409 	 C-Value = 1.929734 
+Count = 410 	 C-Value = 0.000000 
+Count = 411 	 C-Value = 3.603169 
+Count = 412 	 C-Value = 5.937743 
+Count = 413 	 C-Value = 8.257165 
+Count = 414 	 C-Value = 10.618844 
+Count = 415 	 C-Value = 13.017134 
+Count = 416 	 C-Value = 15.427767 
+Count = 417 	 C-Value = 17.818558 
+Count = 418 	 C-Value = 20.153453 
+Count = 419 	 C-Value = 22.394540 
+Count = 420 	 C-Value = 24.503193 
+Count = 421 	 C-Value = 26.440692 
+Count = 422 	 C-Value = 28.168523 
+Count = 423 	 C-Value = 29.648553 
+Count = 424 	 C-Value = 30.843463 
+Count = 425 	 C-Value = 31.717938 
+Count = 426 	 C-Value = 32.241092 
+Count = 427 	 C-Value = 32.389956 
+Count = 428 	 C-Value = 32.152574 
+Count = 429 	 C-Value = 31.527698 
+Count = 430 	 C-Value = 30.516074 
+Count = 431 	 C-Value = 29.071023 
+Count = 432 	 C-Value = 27.333731 
+Count = 433 	 C-Value = 25.449837 
+Count = 434 	 C-Value = 23.503189 
+Count = 435 	 C-Value = 21.551598 
+Count = 436 	 C-Value = 19.635046 
+Count = 437 	 C-Value = 17.780138 
+Count = 438 	 C-Value = 16.003513 
+Count = 439 	 C-Value = 14.314600 
+Count = 440 	 C-Value = 12.717731 
+Count = 441 	 C-Value = 11.213660 
+Count = 442 	 C-Value = 9.800589 
+Count = 443 	 C-Value = 8.474801 
+Count = 444 	 C-Value = 7.230958 
+Count = 445 	 C-Value = 6.062034 
+Count = 446 	 C-Value = 4.958645 
+Count = 447 	 C-Value = 3.907039 
+Count = 448 	 C-Value = 2.882854 
+Count = 449 	 C-Value = 1.824488 
+Count = 450 	 C-Value = 0.000000 
+Count = 451 	 C-Value = 3.772706 
+Count = 452 	 C-Value = 6.095922 
+Count = 453 	 C-Value = 8.347150 
+Count = 454 	 C-Value = 10.598851 
+Count = 455 	 C-Value = 12.853073 
+Count = 456 	 C-Value = 15.091414 
+Count = 457 	 C-Value = 17.287078 
+Count = 458 	 C-Value = 19.409316 
+Count = 459 	 C-Value = 21.425541 
+Count = 460 	 C-Value = 23.302488 
+Count = 461 	 C-Value = 25.006909 
+Count = 462 	 C-Value = 26.506039 
+Count = 463 	 C-Value = 27.768072 
+Count = 464 	 C-Value = 28.762938 
+Count = 465 	 C-Value = 29.463654 
+Count = 466 	 C-Value = 29.848337 
+Count = 467 	 C-Value = 29.902468 
+Count = 468 	 C-Value = 29.620264 
+Count = 469 	 C-Value = 29.003300 
+Count = 470 	 C-Value = 28.052812 
+Count = 471 	 C-Value = 26.725837 
+Count = 472 	 C-Value = 25.139202 
+Count = 473 	 C-Value = 23.424297 
+Count = 474 	 C-Value = 21.655660 
+Count = 475 	 C-Value = 19.884150 
+Count = 476 	 C-Value = 18.144337 
+Count = 477 	 C-Value = 16.458789 
+Count = 478 	 C-Value = 14.841469 
+Count = 479 	 C-Value = 13.300332 
+Count = 480 	 C-Value = 11.839164 
+Count = 481 	 C-Value = 10.458798 
+Count = 482 	 C-Value = 9.157921 
+Count = 483 	 C-Value = 7.933540 
+Count = 484 	 C-Value = 6.781188 
+Count = 485 	 C-Value = 5.694805 
+Count = 486 	 C-Value = 4.666075 
+Count = 487 	 C-Value = 3.682501 
+Count = 488 	 C-Value = 2.721471 
+Count = 489 	 C-Value = 1.725008 
+Count = 490 	 C-Value = 0.000000 
+Count = 491 	 C-Value = 3.843496 
+Count = 492 	 C-Value = 6.126049 
+Count = 493 	 C-Value = 8.293823 
+Count = 494 	 C-Value = 10.429297 
+Count = 495 	 C-Value = 12.540407 
+Count = 496 	 C-Value = 14.613642 
+Count = 497 	 C-Value = 16.626867 
+Count = 498 	 C-Value = 18.553993 
+Count = 499 	 C-Value = 20.367153 
+Count = 500 	 C-Value = 22.037897 
+Count = 501 	 C-Value = 23.537948 
+Count = 502 	 C-Value = 24.839799 
+Count = 503 	 C-Value = 25.917350 
+Count = 504 	 C-Value = 26.746794 
+Count = 505 	 C-Value = 27.307848 
+Count = 506 	 C-Value = 27.585272 
+Count = 507 	 C-Value = 27.570249 
+Count = 508 	 C-Value = 27.260846 
+Count = 509 	 C-Value = 26.660341 
+Count = 510 	 C-Value = 25.770627 
+Count = 511 	 C-Value = 24.553317 
+Count = 512 	 C-Value = 23.105239 
+Count = 513 	 C-Value = 21.546224 
+Count = 514 	 C-Value = 19.942730 
+Count = 515 	 C-Value = 18.338734 
+Count = 516 	 C-Value = 16.763134 
+Count = 517 	 C-Value = 15.234449 
+Count = 518 	 C-Value = 13.764224 
+Count = 519 	 C-Value = 12.359260 
+Count = 520 	 C-Value = 11.023029 
+Count = 521 	 C-Value = 9.756582 
+Count = 522 	 C-Value = 8.559127 
+Count = 523 	 C-Value = 7.428376 
+Count = 524 	 C-Value = 6.360673 
+Count = 525 	 C-Value = 5.350842 
+Count = 526 	 C-Value = 4.391540 
+Count = 527 	 C-Value = 3.471415 
+Count = 528 	 C-Value = 2.569476 
+Count = 529 	 C-Value = 1.631139 
+Count = 530 	 C-Value = 3.845517 
+Count = 531 	 C-Value = 6.066043 
+Count = 532 	 C-Value = 8.139896 
+Count = 533 	 C-Value = 10.156097 
+Count = 534 	 C-Value = 12.127095 
+Count = 535 	 C-Value = 14.043440 
+Count = 536 	 C-Value = 15.887011 
+Count = 537 	 C-Value = 17.635794 
+Count = 538 	 C-Value = 19.266088 
+Count = 539 	 C-Value = 20.753721 
+Count = 540 	 C-Value = 22.074853 
+Count = 541 	 C-Value = 23.206639 
+Count = 542 	 C-Value = 24.127919 
+Count = 543 	 C-Value = 24.820071 
+Count = 544 	 C-Value = 25.268040 
+Count = 545 	 C-Value = 25.461423 
+Count = 546 	 C-Value = 25.395285 
+Count = 547 	 C-Value = 25.070186 
+Count = 548 	 C-Value = 24.490572 
+Count = 549 	 C-Value = 23.659268 
+Count = 550 	 C-Value = 22.543186 
+Count = 551 	 C-Value = 21.222982 
+Count = 552 	 C-Value = 19.809052 
+Count = 553 	 C-Value = 18.359980 
+Count = 554 	 C-Value = 16.912149 
+Count = 555 	 C-Value = 15.488617 
+Count = 556 	 C-Value = 14.104331 
+Count = 557 	 C-Value = 12.769011 
+Count = 558 	 C-Value = 11.488736 
+Count = 559 	 C-Value = 10.266905 
+Count = 560 	 C-Value = 9.104875 
+Count = 561 	 C-Value = 8.002384 
+Count = 562 	 C-Value = 6.957798 
+Count = 563 	 C-Value = 5.968194 
+Count = 564 	 C-Value = 5.029191 
+Count = 565 	 C-Value = 4.134318 
+Count = 566 	 C-Value = 3.273262 
+Count = 567 	 C-Value = 2.426520 
+Count = 568 	 C-Value = 1.542683 
+Count = 569 	 C-Value = 3.798298 
+Count = 570 	 C-Value = 5.942053 
+Count = 571 	 C-Value = 7.915776 
+Count = 572 	 C-Value = 9.812516 
+Count = 573 	 C-Value = 11.648164 
+Count = 574 	 C-Value = 13.416651 
+Count = 575 	 C-Value = 15.103307 
+Count = 576 	 C-Value = 16.689673 
+Count = 577 	 C-Value = 18.155702 
+Count = 578 	 C-Value = 19.480991 
+Count = 579 	 C-Value = 20.645589 
+Count = 580 	 C-Value = 21.630682 
+Count = 581 	 C-Value = 22.419268 
+Count = 582 	 C-Value = 22.996911 
+Count = 583 	 C-Value = 23.352560 
+Count = 584 	 C-Value = 23.479309 
+Count = 585 	 C-Value = 23.374872 
+Count = 586 	 C-Value = 23.041442 
+Count = 587 	 C-Value = 22.484342 
+Count = 588 	 C-Value = 21.707664 
+Count = 589 	 C-Value = 20.684605 
+Count = 590 	 C-Value = 19.483722 
+Count = 591 	 C-Value = 18.207153 
+Count = 592 	 C-Value = 16.903615 
+Count = 593 	 C-Value = 15.600912 
+Count = 594 	 C-Value = 14.317095 
+Count = 595 	 C-Value = 13.064634 
+Count = 596 	 C-Value = 11.852149 
+Count = 597 	 C-Value = 10.685376 
+Count = 598 	 C-Value = 9.567798 
+Count = 599 	 C-Value = 8.501113 
+Count = 600 	 C-Value = 7.485548 
+Count = 601 	 C-Value = 6.520054 
+Count = 602 	 C-Value = 5.602355 
+Count = 603 	 C-Value = 4.728765 
+Count = 604 	 C-Value = 3.893590 
+Count = 605 	 C-Value = 3.087450 
+Count = 606 	 C-Value = 2.292208 
+Count = 607 	 C-Value = 0.000000 
+Count = 608 	 C-Value = 3.715805 
+Count = 609 	 C-Value = 5.773169 
+Count = 610 	 C-Value = 7.643901 
+Count = 611 	 C-Value = 9.423189 
+Count = 612 	 C-Value = 11.129526 
+Count = 613 	 C-Value = 12.759650 
+Count = 614 	 C-Value = 14.301856 
+Count = 615 	 C-Value = 15.740772 
+Count = 616 	 C-Value = 17.059545 
+Count = 617 	 C-Value = 18.241053 
+Count = 618 	 C-Value = 19.268707 
+Count = 619 	 C-Value = 20.127118 
+Count = 620 	 C-Value = 20.802713 
+Count = 621 	 C-Value = 21.284384 
+Count = 622 	 C-Value = 21.564110 
+Count = 623 	 C-Value = 21.637487 
+Count = 624 	 C-Value = 21.504002 
+Count = 625 	 C-Value = 21.166841 
+Count = 626 	 C-Value = 20.631892 
+Count = 627 	 C-Value = 19.904739 
+Count = 628 	 C-Value = 18.966912 
+Count = 629 	 C-Value = 17.881100 
+Count = 630 	 C-Value = 16.737473 
+Count = 631 	 C-Value = 15.570400 
+Count = 632 	 C-Value = 14.400805 
+Count = 633 	 C-Value = 13.243835 
+Count = 634 	 C-Value = 12.110630 
+Count = 635 	 C-Value = 11.009243 
+Count = 636 	 C-Value = 9.945273 
+Count = 637 	 C-Value = 8.922344 
+Count = 638 	 C-Value = 7.942465 
+Count = 639 	 C-Value = 7.006286 
+Count = 640 	 C-Value = 6.113259 
+Count = 641 	 C-Value = 5.261658 
+Count = 642 	 C-Value = 4.448405 
+Count = 643 	 C-Value = 3.668482 
+Count = 644 	 C-Value = 2.913349 
+Count = 645 	 C-Value = 0.000000 
+Count = 646 	 C-Value = 3.608435 
+Count = 647 	 C-Value = 5.573690 
+Count = 648 	 C-Value = 7.341088 
+Count = 649 	 C-Value = 9.006521 
+Count = 650 	 C-Value = 10.590408 
+Count = 651 	 C-Value = 12.091809 
+Count = 652 	 C-Value = 13.501559 
+Count = 653 	 C-Value = 14.806964 
+Count = 654 	 C-Value = 15.993940 
+Count = 655 	 C-Value = 17.048200 
+Count = 656 	 C-Value = 17.956032 
+Count = 657 	 C-Value = 18.704918 
+Count = 658 	 C-Value = 19.284089 
+Count = 659 	 C-Value = 19.685055 
+Count = 660 	 C-Value = 19.902077 
+Count = 661 	 C-Value = 19.932529 
+Count = 662 	 C-Value = 19.777024 
+Count = 663 	 C-Value = 19.439202 
+Count = 664 	 C-Value = 18.924950 
+Count = 665 	 C-Value = 18.240545 
+Count = 666 	 C-Value = 17.381889 
+Count = 667 	 C-Value = 16.415876 
+Count = 668 	 C-Value = 15.398715 
+Count = 669 	 C-Value = 14.356034 
+Count = 670 	 C-Value = 13.306200 
+Count = 671 	 C-Value = 12.263011 
+Count = 672 	 C-Value = 11.236852 
+Count = 673 	 C-Value = 10.235415 
+Count = 674 	 C-Value = 9.264214 
+Count = 675 	 C-Value = 8.326981 
+Count = 676 	 C-Value = 7.425972 
+Count = 677 	 C-Value = 6.562180 
+Count = 678 	 C-Value = 5.735466 
+Count = 679 	 C-Value = 4.944566 
+Count = 680 	 C-Value = 4.186918 
+Count = 681 	 C-Value = 3.458098 
+Count = 682 	 C-Value = 0.000000 
+Count = 683 	 C-Value = 3.484072 
+Count = 684 	 C-Value = 5.354444 
+Count = 685 	 C-Value = 7.020010 
+Count = 686 	 C-Value = 8.576272 
+Count = 687 	 C-Value = 10.045023 
+Count = 688 	 C-Value = 11.427243 
+Count = 689 	 C-Value = 12.715934 
+Count = 690 	 C-Value = 13.900710 
+Count = 691 	 C-Value = 14.969884 
+Count = 692 	 C-Value = 15.911605 
+Count = 693 	 C-Value = 16.714603 
+Count = 694 	 C-Value = 17.368759 
+Count = 695 	 C-Value = 17.865586 
+Count = 696 	 C-Value = 18.198667 
+Count = 697 	 C-Value = 18.364005 
+Count = 698 	 C-Value = 18.360264 
+Count = 699 	 C-Value = 18.188823 
+Count = 700 	 C-Value = 17.853556 
+Count = 701 	 C-Value = 17.360285 
+Count = 702 	 C-Value = 16.716845 
+Count = 703 	 C-Value = 15.946120 
+Count = 704 	 C-Value = 15.091422 
+Count = 705 	 C-Value = 14.186388 
+Count = 706 	 C-Value = 13.253675 
+Count = 707 	 C-Value = 12.309961 
+Count = 708 	 C-Value = 11.367957 
+Count = 709 	 C-Value = 10.437376 
+Count = 710 	 C-Value = 9.525550 
+Count = 711 	 C-Value = 8.637863 
+Count = 712 	 C-Value = 7.778091 
+Count = 713 	 C-Value = 6.948654 
+Count = 714 	 C-Value = 6.150804 
+Count = 715 	 C-Value = 5.384726 
+Count = 716 	 C-Value = 4.649538 
+Count = 717 	 C-Value = 3.943112 
+Count = 718 	 C-Value = 0.000000 
+Count = 719 	 C-Value = 3.348740 
+Count = 720 	 C-Value = 5.123656 
+Count = 721 	 C-Value = 6.690206 
+Count = 722 	 C-Value = 8.142675 
+Count = 723 	 C-Value = 9.503788 
+Count = 724 	 C-Value = 10.776094 
+Count = 725 	 C-Value = 11.954442 
+Count = 726 	 C-Value = 13.030436 
+Count = 727 	 C-Value = 13.994450 
+Count = 728 	 C-Value = 14.836722 
+Count = 729 	 C-Value = 15.548055 
+Count = 730 	 C-Value = 16.120334 
+Count = 731 	 C-Value = 16.546952 
+Count = 732 	 C-Value = 16.823165 
+Count = 733 	 C-Value = 16.946375 
+Count = 734 	 C-Value = 16.916319 
+Count = 735 	 C-Value = 16.735164 
+Count = 736 	 C-Value = 16.407601 
+Count = 737 	 C-Value = 15.941531 
+Count = 738 	 C-Value = 15.351245 
+Count = 739 	 C-Value = 14.661163 
+Count = 740 	 C-Value = 13.899742 
+Count = 741 	 C-Value = 13.091198 
+Count = 742 	 C-Value = 12.254392 
+Count = 743 	 C-Value = 11.404025 
+Count = 744 	 C-Value = 10.551615 
+Count = 745 	 C-Value = 9.706141 
+Count = 746 	 C-Value = 8.874513 
+Count = 747 	 C-Value = 8.061920 
+Count = 748 	 C-Value = 7.272105 
+Count = 749 	 C-Value = 6.507581 
+Count = 750 	 C-Value = 5.769779 
+Count = 751 	 C-Value = 5.059134 
+Count = 752 	 C-Value = 4.375069 
+Count = 753 	 C-Value = 0.000000 
+Count = 754 	 C-Value = 3.207051 
+Count = 755 	 C-Value = 4.887555 
+Count = 756 	 C-Value = 6.358814 
+Count = 757 	 C-Value = 7.713269 
+Count = 758 	 C-Value = 8.974218 
+Count = 759 	 C-Value = 10.145487 
+Count = 760 	 C-Value = 11.223492 
+Count = 761 	 C-Value = 12.201548 
+Count = 762 	 C-Value = 13.071805 
+Count = 763 	 C-Value = 13.826291 
+Count = 764 	 C-Value = 14.457573 
+Count = 765 	 C-Value = 14.959227 
+Count = 766 	 C-Value = 15.326219 
+Count = 767 	 C-Value = 15.555211 
+Count = 768 	 C-Value = 15.644821 
+Count = 769 	 C-Value = 15.595834 
+Count = 770 	 C-Value = 15.411461 
+Count = 771 	 C-Value = 15.097821 
+Count = 772 	 C-Value = 14.665068 
+Count = 773 	 C-Value = 14.128782 
+Count = 774 	 C-Value = 13.509160 
+Count = 775 	 C-Value = 12.827241 
+Count = 776 	 C-Value = 12.101798 
+Count = 777 	 C-Value = 11.348498 
+Count = 778 	 C-Value = 10.580114 
+Count = 779 	 C-Value = 9.806945 
+Count = 780 	 C-Value = 9.037198 
+Count = 781 	 C-Value = 8.277314 
+Count = 782 	 C-Value = 7.532227 
+Count = 783 	 C-Value = 6.805590 
+Count = 784 	 C-Value = 6.099939 
+Count = 785 	 C-Value = 5.416821 
+Count = 786 	 C-Value = 4.756855 
+Count = 787 	 C-Value = -0.000000 
+Count = 788 	 C-Value = 3.062518 
+Count = 789 	 C-Value = 4.650830 
+Count = 790 	 C-Value = 6.031116 
+Count = 791 	 C-Value = 7.293514 
+Count = 792 	 C-Value = 8.461606 
+Count = 793 	 C-Value = 9.540246 
+Count = 794 	 C-Value = 10.527182 
+Count = 795 	 C-Value = 11.417196 
+Count = 796 	 C-Value = 12.203967 
+Count = 797 	 C-Value = 12.881063 
+Count = 798 	 C-Value = 13.442558 
+Count = 799 	 C-Value = 13.883473 
+Count = 800 	 C-Value = 14.200116 
+Count = 801 	 C-Value = 14.390372 
+Count = 802 	 C-Value = 14.453957 
+Count = 803 	 C-Value = 14.392690 
+Count = 804 	 C-Value = 14.210834 
+Count = 805 	 C-Value = 13.915615 
+Count = 806 	 C-Value = 13.517794 
+Count = 807 	 C-Value = 13.031648 
+Count = 808 	 C-Value = 12.473636 
+Count = 809 	 C-Value = 11.860334 
+Count = 810 	 C-Value = 11.206912 
+Count = 811 	 C-Value = 10.526523 
+Count = 812 	 C-Value = 9.830239 
+Count = 813 	 C-Value = 9.127213 
+Count = 814 	 C-Value = 8.424889 
+Count = 815 	 C-Value = 7.729217 
+Count = 816 	 C-Value = 7.044846 
+Count = 817 	 C-Value = 6.375288 
+Count = 818 	 C-Value = 5.723056 
+Count = 819 	 C-Value = 5.089757 
+Count = 820 	 C-Value = 2.917802 
+Count = 821 	 C-Value = 4.416966 
+Count = 822 	 C-Value = 5.710953 
+Count = 823 	 C-Value = 6.887264 
+Count = 824 	 C-Value = 7.969538 
+Count = 825 	 C-Value = 8.963447 
+Count = 826 	 C-Value = 9.867864 
+Count = 827 	 C-Value = 10.678834 
+Count = 828 	 C-Value = 11.391352 
+Count = 829 	 C-Value = 12.000313 
+Count = 830 	 C-Value = 12.501088 
+Count = 831 	 C-Value = 12.889936 
+Count = 832 	 C-Value = 13.164323 
+Count = 833 	 C-Value = 13.323196 
+Count = 834 	 C-Value = 13.367238 
+Count = 835 	 C-Value = 13.299141 
+Count = 836 	 C-Value = 13.123906 
+Count = 837 	 C-Value = 12.849140 
+Count = 838 	 C-Value = 12.485117 
+Count = 839 	 C-Value = 12.044313 
+Count = 840 	 C-Value = 11.540346 
+Count = 841 	 C-Value = 10.986764 
+Count = 842 	 C-Value = 10.396150 
+Count = 843 	 C-Value = 9.779676 
+Count = 844 	 C-Value = 9.146969 
+Count = 845 	 C-Value = 8.506149 
+Count = 846 	 C-Value = 7.863940 
+Count = 847 	 C-Value = 7.225809 
+Count = 848 	 C-Value = 6.596099 
+Count = 849 	 C-Value = 5.978155 
+Count = 850 	 C-Value = 5.374429 
+Count = 851 	 C-Value = 2.774890 
+Count = 852 	 C-Value = 4.188510 
+Count = 853 	 C-Value = 5.401045 
+Count = 854 	 C-Value = 6.497135 
+Count = 855 	 C-Value = 7.500292 
+Count = 856 	 C-Value = 8.416832 
+Count = 857 	 C-Value = 9.246576 
+Count = 858 	 C-Value = 9.986653 
+Count = 859 	 C-Value = 10.633194 
+Count = 860 	 C-Value = 11.182234 
+Count = 861 	 C-Value = 11.630261 
+Count = 862 	 C-Value = 11.974596 
+Count = 863 	 C-Value = 12.213692 
+Count = 864 	 C-Value = 12.347390 
+Count = 865 	 C-Value = 12.377150 
+Count = 866 	 C-Value = 12.306279 
+Count = 867 	 C-Value = 12.140112 
+Count = 868 	 C-Value = 11.886094 
+Count = 869 	 C-Value = 11.553602 
+Count = 870 	 C-Value = 11.153433 
+Count = 871 	 C-Value = 10.697041 
+Count = 872 	 C-Value = 10.195759 
+Count = 873 	 C-Value = 9.660217 
+Count = 874 	 C-Value = 9.100007 
+Count = 875 	 C-Value = 8.523536 
+Count = 876 	 C-Value = 7.938015 
+Count = 877 	 C-Value = 7.349507 
+Count = 878 	 C-Value = 6.763018 
+Count = 879 	 C-Value = 6.182584 
+Count = 880 	 C-Value = 5.611367 
+Count = 881 	 C-Value = 2.635242 
+Count = 882 	 C-Value = 3.967272 
+Count = 883 	 C-Value = 5.103241 
+Count = 884 	 C-Value = 6.124787 
+Count = 885 	 C-Value = 7.055146 
+Count = 886 	 C-Value = 7.901135 
+Count = 887 	 C-Value = 8.663372 
+Count = 888 	 C-Value = 9.339909 
+Count = 889 	 C-Value = 9.927858 
+Count = 890 	 C-Value = 10.424234 
+Count = 891 	 C-Value = 10.826478 
+Count = 892 	 C-Value = 11.132811 
+Count = 893 	 C-Value = 11.342506 
+Count = 894 	 C-Value = 11.456119 
+Count = 895 	 C-Value = 11.475675 
+Count = 896 	 C-Value = 11.404827 
+Count = 897 	 C-Value = 11.248930 
+Count = 898 	 C-Value = 11.014989 
+Count = 899 	 C-Value = 10.711407 
+Count = 900 	 C-Value = 10.347547 
+Count = 901 	 C-Value = 9.933172 
+Count = 902 	 C-Value = 9.477922 
+Count = 903 	 C-Value = 8.990901 
+Count = 904 	 C-Value = 8.480416 
+Count = 905 	 C-Value = 7.953848 
+Count = 906 	 C-Value = 7.417615 
+Count = 907 	 C-Value = 6.877184 
+Count = 908 	 C-Value = 6.337127 
+Count = 909 	 C-Value = 5.801184 
+Count = 910 	 C-Value = 0.000000 
+Count = 911 	 C-Value = 2.499901 
+Count = 912 	 C-Value = 3.754489 
+Count = 913 	 C-Value = 4.818718 
+Count = 914 	 C-Value = 5.771146 
+Count = 915 	 C-Value = 6.634624 
+Count = 916 	 C-Value = 7.416340 
+Count = 917 	 C-Value = 8.117579 
+Count = 918 	 C-Value = 8.737185 
+Count = 919 	 C-Value = 9.273104 
+Count = 920 	 C-Value = 9.723189 
+Count = 921 	 C-Value = 10.085688 
+Count = 922 	 C-Value = 10.359568 
+Count = 923 	 C-Value = 10.544764 
+Count = 924 	 C-Value = 10.642368 
+Count = 925 	 C-Value = 10.654775 
+Count = 926 	 C-Value = 10.585769 
+Count = 927 	 C-Value = 10.440530 
+Count = 928 	 C-Value = 10.225515 
+Count = 929 	 C-Value = 9.948212 
+Count = 930 	 C-Value = 9.616777 
+Count = 931 	 C-Value = 9.239630 
+Count = 932 	 C-Value = 8.825071 
+Count = 933 	 C-Value = 8.380977 
+Count = 934 	 C-Value = 7.914603 
+Count = 935 	 C-Value = 7.432461 
+Count = 936 	 C-Value = 6.940276 
+Count = 937 	 C-Value = 6.442982 
+Count = 938 	 C-Value = 5.944755 
+Count = 939 	 C-Value = 0.000000 
+Count = 940 	 C-Value = 2.369585 
+Count = 941 	 C-Value = 3.550951 
+Count = 942 	 C-Value = 4.548134 
+Count = 943 	 C-Value = 5.436584 
+Count = 944 	 C-Value = 6.238678 
+Count = 945 	 C-Value = 6.961874 
+Count = 946 	 C-Value = 7.608008 
+Count = 947 	 C-Value = 8.176593 
+Count = 948 	 C-Value = 8.666286 
+Count = 949 	 C-Value = 9.075649 
+Count = 950 	 C-Value = 9.403600 
+Count = 951 	 C-Value = 9.649713 
+Count = 952 	 C-Value = 9.814437 
+Count = 953 	 C-Value = 9.899246 
+Count = 954 	 C-Value = 9.906742 
+Count = 955 	 C-Value = 9.840696 
+Count = 956 	 C-Value = 9.706007 
+Count = 957 	 C-Value = 9.508569 
+Count = 958 	 C-Value = 9.255047 
+Count = 959 	 C-Value = 8.952591 
+Count = 960 	 C-Value = 8.608528 
+Count = 961 	 C-Value = 8.230073 
+Count = 962 	 C-Value = 7.824103 
+Count = 963 	 C-Value = 7.396995 
+Count = 964 	 C-Value = 6.954523 
+Count = 965 	 C-Value = 6.501808 
+Count = 966 	 C-Value = 6.043311 
+Count = 967 	 C-Value = 0.000000 
+Count = 968 	 C-Value = 2.244758 
+Count = 969 	 C-Value = 3.357104 
+Count = 970 	 C-Value = 4.291754 
+Count = 971 	 C-Value = 5.121055 
+Count = 972 	 C-Value = 5.866849 
+Count = 973 	 C-Value = 6.536772 
+Count = 974 	 C-Value = 7.133111 
+Count = 975 	 C-Value = 7.655944 
+Count = 976 	 C-Value = 8.104525 
+Count = 977 	 C-Value = 8.478007 
+Count = 978 	 C-Value = 8.775858 
+Count = 979 	 C-Value = 8.998137 
+Count = 980 	 C-Value = 9.145674 
+Count = 981 	 C-Value = 9.220199 
+Count = 982 	 C-Value = 9.224403 
+Count = 983 	 C-Value = 9.161951 
+Count = 984 	 C-Value = 9.037417 
+Count = 985 	 C-Value = 8.856156 
+Count = 986 	 C-Value = 8.624113 
+Count = 987 	 C-Value = 8.347590 
+Count = 988 	 C-Value = 8.033011 
+Count = 989 	 C-Value = 7.686702 
+Count = 990 	 C-Value = 7.314708 
+Count = 991 	 C-Value = 6.922667 
+Count = 992 	 C-Value = 6.515720 
+Count = 993 	 C-Value = 6.098465 
+Count = 994 	 C-Value = 2.125685 
+Count = 995 	 C-Value = 3.173133 
+Count = 996 	 C-Value = 4.049544 
+Count = 997 	 C-Value = 4.824208 
+Count = 998 	 C-Value = 5.518378 
+Count = 999 	 C-Value = 6.139797 
+Count = 1000 	 C-Value = 6.691115 
+Count = 1001 	 C-Value = 7.172876 
+Count = 1002 	 C-Value = 7.584835 
+Count = 1003 	 C-Value = 7.926632 
+Count = 1004 	 C-Value = 8.198180 
+Count = 1005 	 C-Value = 8.399910 
+Count = 1006 	 C-Value = 8.532932 
+Count = 1007 	 C-Value = 8.599130 
+Count = 1008 	 C-Value = 8.601202 
+Count = 1009 	 C-Value = 8.542654 
+Count = 1010 	 C-Value = 8.427725 
+Count = 1011 	 C-Value = 8.261275 
+Count = 1012 	 C-Value = 8.048617 
+Count = 1013 	 C-Value = 7.795339 
+Count = 1014 	 C-Value = 7.507109 
+Count = 1015 	 C-Value = 7.189510 
+Count = 1016 	 C-Value = 6.847890 
+Count = 1017 	 C-Value = 6.487261 
+Count = 1018 	 C-Value = 6.112217 
+Count = 1019 	 C-Value = 2.012481 
+Count = 1020 	 C-Value = 2.999021 
+Count = 1021 	 C-Value = 3.821253 
+Count = 1022 	 C-Value = 4.545472 
+Count = 1023 	 C-Value = 5.192307 
+Count = 1024 	 C-Value = 5.769542 
+Count = 1025 	 C-Value = 6.280115 
+Count = 1026 	 C-Value = 6.724956 
+Count = 1027 	 C-Value = 7.104229 
+Count = 1028 	 C-Value = 7.417971 
+Count = 1029 	 C-Value = 7.666447 
+Count = 1030 	 C-Value = 7.850374 
+Count = 1031 	 C-Value = 7.971054 
+Count = 1032 	 C-Value = 8.030452 
+Count = 1033 	 C-Value = 8.031218 
+Count = 1034 	 C-Value = 7.976670 
+Count = 1035 	 C-Value = 7.870724 
+Count = 1036 	 C-Value = 7.717788 
+Count = 1037 	 C-Value = 7.522629 
+Count = 1038 	 C-Value = 7.290222 
+Count = 1039 	 C-Value = 7.025601 
+Count = 1040 	 C-Value = 6.733719 
+Count = 1041 	 C-Value = 6.419335 
+Count = 1042 	 C-Value = 6.086922 
+Count = 1043 	 C-Value = 0.000000 
+Count = 1044 	 C-Value = 1.905146 
+Count = 1045 	 C-Value = 2.834606 
+Count = 1046 	 C-Value = 3.606475 
+Count = 1047 	 C-Value = 4.284126 
+Count = 1048 	 C-Value = 4.887546 
+Count = 1049 	 C-Value = 5.424504 
+Count = 1050 	 C-Value = 5.898159 
+Count = 1051 	 C-Value = 6.309753 
+Count = 1052 	 C-Value = 6.659786 
+Count = 1053 	 C-Value = 6.948611 
+Count = 1054 	 C-Value = 7.176771 
+Count = 1055 	 C-Value = 7.345191 
+Count = 1056 	 C-Value = 7.455302 
+Count = 1057 	 C-Value = 7.509094 
+Count = 1058 	 C-Value = 7.509136 
+Count = 1059 	 C-Value = 7.458548 
+Count = 1060 	 C-Value = 7.360938 
+Count = 1061 	 C-Value = 7.220312 
+Count = 1062 	 C-Value = 7.040958 
+Count = 1063 	 C-Value = 6.827327 
+Count = 1064 	 C-Value = 6.583912 
+Count = 1065 	 C-Value = 6.315129 
+Count = 1066 	 C-Value = 6.025233 
+Count = 1067 	 C-Value = 0.000000 
+Count = 1068 	 C-Value = 1.803595 
+Count = 1069 	 C-Value = 2.679622 
+Count = 1070 	 C-Value = 3.404693 
+Count = 1071 	 C-Value = 4.039356 
+Count = 1072 	 C-Value = 4.602934 
+Count = 1073 	 C-Value = 5.103140 
+Count = 1074 	 C-Value = 5.543297 
+Count = 1075 	 C-Value = 5.924896 
+Count = 1076 	 C-Value = 6.248705 
+Count = 1077 	 C-Value = 6.515330 
+Count = 1078 	 C-Value = 6.725524 
+Count = 1079 	 C-Value = 6.880364 
+Count = 1080 	 C-Value = 6.981357 
+Count = 1081 	 C-Value = 7.030483 
+Count = 1082 	 C-Value = 7.030207 
+Count = 1083 	 C-Value = 6.983452 
+Count = 1084 	 C-Value = 6.893539 
+Count = 1085 	 C-Value = 6.764115 
+Count = 1086 	 C-Value = 6.599050 
+Count = 1087 	 C-Value = 6.402343 
+Count = 1088 	 C-Value = 6.178018 
+Count = 1089 	 C-Value = 5.930037 
+Count = 1090 	 C-Value = 0.000000 
+Count = 1091 	 C-Value = 1.707679 
+Count = 1092 	 C-Value = 2.533725 
+Count = 1093 	 C-Value = 3.215323 
+Count = 1094 	 C-Value = 3.810288 
+Count = 1095 	 C-Value = 4.337278 
+Count = 1096 	 C-Value = 4.803911 
+Count = 1097 	 C-Value = 5.213627 
+Count = 1098 	 C-Value = 5.568108 
+Count = 1099 	 C-Value = 5.868336 
+Count = 1100 	 C-Value = 6.115114 
+Count = 1101 	 C-Value = 6.309354 
+Count = 1102 	 C-Value = 6.452237 
+Count = 1103 	 C-Value = 6.545308 
+Count = 1104 	 C-Value = 6.590510 
+Count = 1105 	 C-Value = 6.590196 
+Count = 1106 	 C-Value = 6.547093 
+Count = 1107 	 C-Value = 6.464264 
+Count = 1108 	 C-Value = 6.345031 
+Count = 1109 	 C-Value = 6.192899 
+Count = 1110 	 C-Value = 6.011473 
+Count = 1111 	 C-Value = 5.804377 
+Count = 1112 	 C-Value = 1.617206 
+Count = 1113 	 C-Value = 2.396525 
+Count = 1114 	 C-Value = 3.037736 
+Count = 1115 	 C-Value = 3.596027 
+Count = 1116 	 C-Value = 4.089389 
+Count = 1117 	 C-Value = 4.525315 
+Count = 1118 	 C-Value = 4.907318 
+Count = 1119 	 C-Value = 5.237230 
+Count = 1120 	 C-Value = 5.516197 
+Count = 1121 	 C-Value = 5.745172 
+Count = 1122 	 C-Value = 5.925184 
+Count = 1123 	 C-Value = 6.057483 
+Count = 1124 	 C-Value = 6.143623 
+Count = 1125 	 C-Value = 6.185493 
+Count = 1126 	 C-Value = 6.185327 
+Count = 1127 	 C-Value = 6.145670 
+Count = 1128 	 C-Value = 6.069344 
+Count = 1129 	 C-Value = 5.959383 
+Count = 1130 	 C-Value = 5.818972 
+Count = 1131 	 C-Value = 5.651371 
+Warning: Using only the real component of complex data. 
+
+Cmax =
+
+   40.6784
+
+
+Imax =
+
+   278
+
+
+L1_max =
+
+    0.2400
+
+
+L2_max =
+
+    0.2400
+
+</pre><img vspace="5" hspace="5" src="project3_10.png" alt=""> <h2 id="5">Functions</h2><pre class="codeinput"><span class="comment">% IK function</span>
+<span class="keyword">function</span> q = ik(l1, l2, x)
+ c1 = (l1^2 + x^2 - l2^2)/(2*l1*x);
+ a = (l1^2 - l2^2 + x^2) / (2*x);
+ h = sqrt(l1^2 - a^2);
+ s1 = h/l1;
+ theta1 = atan2(s1, c1);
+ ca = (x-a)/l2;
+ sa = h/l2;
+ a = atan2(sa, ca);
+ theta2 = -(theta1+a);
+ q = [theta1 theta2];
+<span class="keyword">end</span>
+
+<span class="comment">% w function</span>
+<span class="keyword">function</span> w = w_func(L1, L2, x, Jdiff)
+    syms <span class="string">l1</span> <span class="string">l2</span> <span class="string">theta1</span> <span class="string">theta2</span>
+
+    alpha = [0, 0];
+    a = [l1, l2];
+    d = [0, 0];
+
+    L(1) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(1), <span class="string">'a'</span>, a(1), <span class="string">'d'</span>, d(1), <span class="string">'standard'</span>);
+    L(2) = Link(<span class="string">'revolute'</span>, <span class="string">'alpha'</span>, alpha(2), <span class="string">'a'</span>, a(2), <span class="string">'d'</span>, d(2), <span class="string">'standard'</span>);
+
+    RR_robot = SerialLink(L, <span class="string">'name'</span>, <span class="string">'RR_robot'</span>);
+    q_sym = [theta1 theta2];
+
+    T01 = RR_robot.A(1, q_sym);
+    T12 = RR_robot.A(2, q_sym);
+    T02 = simplify(T01*T12);
+
+    [R01, P01] = tr2rt(T01); R10 = transpose(R01);
+    [R12, P12] = tr2rt(T12); R21 = transpose(R12);
+    [R02, P02] = tr2rt(simplify(T01*T12));
+
+    Jxyz1 = diff(P02, theta1);
+    Jxyz2 = diff(P02, theta2);
+    Jxyz = [Jxyz1 Jxyz2];
+
+    roll = 0;
+    pitch = 0;
+    yaw = theta1 + theta2;
+    Orn = [roll; pitch; yaw];
+    JOrn1 = diff(Orn, theta1);
+    JOrn2 = diff(Orn, theta2);
+    JOrn = [JOrn1 JOrn2];
+    Jdiff = [Jxyz; JOrn];
+
+    theta = ik(L1, L2, x);
+    q1 = theta(1);
+    q2 = theta(2);
+
+    config = subs(Jdiff, [l1,l2,theta1,theta2], [L1, L2, q1, q2]);
+    Jconfig = config(1:2, 1:2); <span class="comment">% reduced Jacobian</span>
+    Jconfig_T = transpose(Jconfig);
+
+    w = sqrt(det(Jconfig*Jconfig_T));
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> [theta] = inverseKinematicsScara3(X, Y, a1, a2)
+    c2 = (X^2 + Y^2 - a1^2 - a2^2)/(2*a1*a2);
+    s2 = (1 - c2^2)^(0.5);
+
+    t2s1 = atan2(s2, c2);
+    t2s2 = atan2(-s2, c2);
+
+    <span class="keyword">if</span>(t2s1 &gt;= 0)
+        theta2 = t2s1;
+    <span class="keyword">else</span>
+        theta2 = t2s2;
+    <span class="keyword">end</span>
+
+    beta = atan2(X, Y);
+    psi = acos((X^2 + Y^2 + a1^2 - a2^2)/(2*a1*(X^2 + Y^2)^(0.5)));
+    theta1 = -(beta + psi - pi/2);
+    theta = [theta1; theta2];
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+pos =
+
+     3
+
+
+pos =
+
+     7
+
+
+pos =
+
+     3
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% MAE C163B Project 3
+% Jacob Sayono
+% 505368811
+
+%% Jacobian Derivation
+
+% VELOCITY PROPAGATION
+close all; clear all; clc;
+
+syms theta1 theta2 theta3 l1 l2 d1 d4
+
+% Modified Denavit-Hartenberg (DH) parameters
+alpha = [0, 0, 0, 0];
+a = [0, l1, l2, 0];
+d = [d1, 0, 0, -d4];
+theta = [theta1, theta2, theta3, 0];
+L(1) = Link('revolute', 'alpha', alpha(1), 'a', a(1), 'd', d(1), 'modified');
+L(2) = Link('revolute', 'alpha', alpha(2), 'a', a(2), 'd', d(2), 'modified');
+L(3) = Link('revolute', 'alpha', alpha(3), 'a', a(3), 'd', d(3), 'modified');
+L(4) = Link('prismatic', 'alpha', alpha(4), 'a', a(4), 'theta', 0, 'modified');
+scara_robot = SerialLink(L, 'name', 'scara_robot')
+
+% Joint angles
+syms theta1 theta2 theta3 d4
+q = [theta1, theta2, theta3, d4];
+
+% Transformation matrices
+T01 = scara_robot.A(1, q);
+T12 = scara_robot.A(2, q);
+T23 = scara_robot.A(3, q);
+T34 = scara_robot.A(4, q);
+T04 = scara_robot.A([1 2 3 4], q);
+T04 = simplify(T04)
+
+% Calculate rotation matrices and positions for each link
+[R01, P01] = tr2rt(T01); 
+[R12, P12] = tr2rt(T12); 
+[R23, P23] = tr2rt(T23); 
+[R34, P34] = tr2rt(T34); 
+[R10, ~] = tr2rt(inv(T01)); 
+[R21, ~] = tr2rt(inv(T12)); 
+[R32, ~] = tr2rt(inv(T23)); 
+[R43, ~] = tr2rt(inv(T34)); 
+[R04, P04] = tr2rt(T04);
+[R02, P02] = tr2rt(simplify(T01*T12));
+[R03, P03] = tr2rt(simplify(T01*T12*T23));
+
+% Define joint velocities
+syms dq1 dq2 dq3 dd4
+dq = [dq1; dq2; dq3; dd4];
+
+% Calculate angular velocities for each frame
+w00 = [0; 0; 0];
+w11 = simplify(R10*w00 + [0; 0; dq1]);
+w22 = simplify(R21*w11 + [0; 0; dq2]);
+w33 = simplify(R32*w22 + [0; 0; dq3]);
+w44 = simplify(R43*w33 + [0; 0; 0]);
+
+% Define velocities for frame {0}
+v0 = [0; 0; 0];
+
+% Calculate velocities for each link
+v01 = cross(w00, P01) + v0; 
+v11 = simplify(R10*v01);
+v12 = cross(w11, P12) + v11; 
+v22 = simplify(R21*v12);
+v23 = cross(w22, P23) + v22; 
+v33 = simplify(R32*v23);
+v34 = cross(w33, P34) + v33; 
+v44 = simplify(R43*v34 + [0; 0; dd4]);
+
+% Calculate the Jacobian matrix
+JV4 = simplify(jacobian(v44, dq)); % Linear velocity
+JW4 = simplify(jacobian(w44, dq)); % Angular velocity
+J4_VP = simplify([JV4; JW4]) % Combined velocity
+
+% Jacobian expressed in frame {0}
+JT = [R04, zeros(3,3);zeros(3,3), R04];
+J0_VP = simplify(JT * J4_VP)
+
+% FORCE PROPAGATION
+syms f_x f_y f_z n_x n_y n_z
+f_end = [f_x f_y f_z n_x n_y n_z];
+f4 = [f_x;f_y;f_z];
+f3 = R34 * f4;
+f2 = R23 * f3;
+f1 = R12 * f2; f1 = simplify(collect(f1, f_end));
+n4 = [n_x; n_y; n_z];
+n3 = R34*n4 + cross(P34,f3); n3 = simplify(collect(n3, f_end));
+n2 = R23*n3 + cross(P23,f2); n2 = simplify(collect(n2, f_end));
+n1 = R12*n2 + cross(P12,f1); n1 = simplify(collect(n1, f_end));
+
+% Torque Matrix
+tq1 = collect(transpose(n1) * [0;0;1], [f_x f_y f_z n_x n_y n_z]);
+tq2 = collect(transpose(n2) * [0;0;1], [f_x f_y f_z n_x n_y n_z]);
+tq3 = collect(transpose(n3) * [0;0;1], [f_x f_y f_z n_x n_y n_z]);
+tq4 = collect(transpose(f4) * [0;0;1], [f_x f_y f_z n_x n_y n_z]);
+TQ1 = equationsToMatrix(tq1, [f_x f_y f_z n_x n_y n_z]);
+TQ2 = equationsToMatrix(tq2, [f_x f_y f_z n_x n_y n_z]);
+TQ3 = equationsToMatrix(tq3, [f_x f_y f_z n_x n_y n_z]);
+TQ4 = equationsToMatrix(tq4, [f_x f_y f_z n_x n_y n_z]);
+JT = [R04, zeros(3,3); zeros(3,3), R04];
+J4_FP_T = [TQ1; TQ2; TQ3; TQ4];
+J4_FP = transpose(J4_FP_T);
+J4_FP = simplify(JT * J4_FP)
+
+% EXPLICIT METHOD
+Jxyz1 = diff(P04, theta1);
+Jxyz2 = diff(P04, theta2);
+Jxyz3 = diff(P04, theta3);
+Jxyz4 = diff(P04, d4);
+Jxyz = [Jxyz1 Jxyz2 Jxyz3 Jxyz4];
+Orn = [0; 0; theta1 + theta2 + theta3]; % roll pitch yaw
+JOrn1 = diff(Orn, theta1); % derivative of rpy wrp theta 1
+JOrn2 = diff(Orn, theta2);
+JOrn3 = diff(Orn, theta3);
+JOrn4 = diff(Orn, d4);
+JOrn = [JOrn1 JOrn2 JOrn3 JOrn4];
+Jdiff = [Jxyz; JOrn]
+
+% Using Siciliano
+Jxyzs1 = cross(R01(:,3), P04 - P01);
+Jxyzs2 = cross(R02(:,3), P04 - P02);
+Jxyzs3 = cross(R03(:,3), P04 - P03);
+Jxyzs4 = R04(:,3);
+Jxyzs = [Jxyzs1 Jxyzs2 Jxyzs3 Jxyzs4];
+JOrns1 = R01(:,3);
+JOrns2 = R02(:,3);
+JOrns3 = R03(:,3);
+JOrns4 = zeros(3,1);
+JOrns = [JOrns1 JOrns2 JOrns3 JOrns4];
+Jdiffs = [Jxyzs; JOrns]
+
+%% Singularities
+
+% POSE DEFINITION
+J_reduced = [Jdiff(1:3,: ); Jdiff(6,:)];
+find_singularity = simplify(det(J_reduced));
+sol1 = solve(find_singularity == 0, theta2)
+sol2 = solve([find_singularity == 0, theta2 ~= sol1], theta2)
+sol3 = solve([find_singularity == 0, theta2 ~= sol1, theta2 ~= sol2], theta2)
+
+% IMPLICATIONS
+% The following are the implications of the singular configuration:
+% 1) The manipulator loses one degree of freedom.
+%    As a result, the end effector can only move along the tangent direction of the arm.
+%    Movement along the radial direction is not possible.
+% 2) In this singular configuration,
+%    it is possible to apply a finite force to the end effector that does not produce any torque at the robot's joints.
+%    Consequently, the manipulator can "lock up."
+% 3) The determinant of the Jacobian matrix is zero.
+% 4) theta2 = -pi so the manipulator folds back from the other direction
+
+%% Jacobian Ellipsoid
+
+% From TA posted code:
+close all; clear all; clc;
+
+syms l1 l2 theta1 theta2
+alpha = [0, 0];
+a = [l1, l2];
+d = [0, 0];
+L(1) = Link('revolute', 'alpha', alpha(1), 'a', a(1), 'd', d(1), 'standard');
+L(2) = Link('revolute', 'alpha', alpha(2), 'a', a(2), 'd', d(2), 'standard');
+RR_robot = SerialLink(L, 'name', 'RR_robot');
+
+% Define Jacobian Matrix
+q_sym = [theta1 theta2];
+T01 = RR_robot.A(1, q_sym);
+T12 = RR_robot.A(2, q_sym);
+T02 = simplify(T01*T12);
+[R01, P01] = tr2rt(T01); R10 = transpose(R01);
+[R12, P12] = tr2rt(T12); R21 = transpose(R12);
+[R02, P02] = tr2rt(simplify(T01*T12));
+Jxyz1 = diff(P02, theta1);
+Jxyz2 = diff(P02, theta2);
+Jxyz = [Jxyz1 Jxyz2];
+roll = 0;
+pitch = 0;
+yaw = theta1 + theta2;
+Orn = [roll; pitch; yaw];
+JOrn1 = diff(Orn, theta1);
+JOrn2 = diff(Orn, theta2);
+JOrn = [JOrn1 JOrn2];
+Jdiff = [Jxyz; JOrn]
+
+% Define eigenvalues and eigenvectors for each config
+
+% Config 1: L1 = 0.25, L2 = 0.75
+config1 = subs(Jdiff, [l1,l2,theta1,theta2], [0.25, 0.75, 0, 0]);
+% Get reduced Jacobian
+Jconfig1 = config1(1:2, 1:2)
+Jconfig1_T = transpose(Jconfig1);
+% Get V1 and D1
+[V1,D1] = eig(Jconfig1*Jconfig1_T)
+
+% Config 2: L1 = 0.5, L2 = 0.5
+config2 = subs(Jdiff, [l1,l2,theta1,theta2], [0.5, 0.5, 0, 0]);
+% Get reduced Jacobian
+Jconfig2 = config2(1:2, 1:2)
+Jconfig2_T = transpose(Jconfig2);
+% Get V2 and D2
+[V2,D2] = eig(Jconfig2*Jconfig2_T)
+
+% Config 3: L1 = 0.75, L2 = 0.25
+config3 = subs(Jdiff, [l1,l2,theta1,theta2], [0.75, 0.25, 0, 0]);
+% Get reduced Jacobian
+Jconfig3 = config3(1:2, 1:2)
+Jconfig3_T = transpose(Jconfig3);
+% Get V3 and D3
+[V3,D3] = eig(Jconfig3*Jconfig3_T)
+
+% Plot
+
+% Config 1
+alpha = [0, 0];
+a = [0.25, 0.75];
+d = [0, 0];
+
+L(1) = Link('revolute', 'alpha', alpha(1), 'a', a(1), 'd', d(1), 'standard');
+L(2) = Link('revolute', 'alpha', alpha(2), 'a', a(2), 'd', d(2), 'standard');
+
+RR_robot = SerialLink(L, 'name', 'RR_robot');
+
+% can reach from 0.5 to 1
+q1 = zeros(6,2);
+% to reach x = 0.5, theta1 = pi, theta2 = 0
+q1(1,:) = [pi, 0];
+% to reach x = 1, theta1 = 0, theta2 = 0
+q1(6,:) = [0, 0];
+
+for i = 2:5
+q1(i,:) = ik(0.25, 0.75, 0.5+(i-1)*0.1);
+figure(i-1);
+xlim([-inf inf]);
+ylim([-inf inf]);
+zlim([-inf inf]);
+RR_robot.plot(q1(i,:))
+RR_robot.fellipse(q1(i,:))
+RR_robot.vellipse(q1(i,:))
+% saveas(figure(i-1),sprintf('config1_%d.jpg',i-1))
+end
+
+% Config 2
+alpha = [0, 0];
+a = [0.5, 0.5];
+d = [0, 0];
+
+L(1) = Link('revolute', 'alpha', alpha(1), 'a', a(1), 'd', d(1), 'standard');
+L(2) = Link('revolute', 'alpha', alpha(2), 'a', a(2), 'd', d(2), 'standard');
+
+RR_robot2 = SerialLink(L, 'name', 'RR_robot');
+
+% can reach from 0 to 1
+q2 = zeros(11,2);
+% to reach x = 0, theta1 = 0, theta2 = pi
+q2(1,:) = [0, pi];
+% to reach x = 1, theta1 = 0, theta2 = 0
+q2(11,:) = [0, 0];
+
+for i = 2:10
+q2(i,:) = ik(0.5, 0.5, (i-1)*0.1);
+figure(i-1);
+xlim([-inf inf]);
+ylim([-inf inf]);
+zlim([-inf inf]);
+RR_robot2.plot(q2(i,:))
+RR_robot2.fellipse(q2(i,:))
+RR_robot2.vellipse(q2(i,:))
+% saveas(figure(i-1),sprintf('config2_%d.jpg',i-1))
+end
+
+% Config 3
+alpha = [0, 0];
+a = [0.75, 0.25];
+d = [0, 0];
+L(1) = Link('revolute', 'alpha', alpha(1), 'a', a(1), 'd', d(1), 'standard');
+L(2) = Link('revolute', 'alpha', alpha(2), 'a', a(2), 'd', d(2), 'standard');
+
+RR_robot3 = SerialLink(L, 'name', 'RR_robot');
+
+% can reach from 0.5 to 1
+q3 = zeros(6,2);
+% to reach x = 0, theta1 = 0, theta2 = pi
+q3(1,:) = [0, pi];
+% to reach x = 1, theta1 = 0, theta2 = 0
+q3(6,:) = [0, 0];
+
+for i = 2:5
+ q3(i,:) = ik(0.75, 0.25, 0.5+(i-1)*0.1);
+ figure(i-1);
+ xlim([-inf inf]);
+ ylim([-inf inf]);
+ zlim([-inf inf]);
+ RR_robot3.plot(q3(i,:))
+ RR_robot3.fellipse(q3(i,:))
+ RR_robot3.vellipse(q3(i,:))
+%  saveas(figure(i-1),sprintf('config3_%d.jpg',i-1))
+end
+
+% Best position for configurations
+
+% Config 1
+w1 = zeros(1, 4);
+for i = 6:9
+    w1(1, i-5) = w_func(0.25, 0.75, i*0.1);
+end
+
+max = w1(1,1);
+for i = 1:4
+if w1(1,i) > max
+max = w1(1,i);
+end
+end
+pos = find(w1 == max)
+
+% ANSWER: best position for configuration 1 is x = 0.8
+
+% Config 2
+w2 = zeros(1, 9);
+for i = 1:9
+w2(1, i) = w_func(0.5, 0.5, i*0.1);
+end
+
+max = w2(1,1);
+for i = 1:9
+if w2(1,i) > max
+max = w2(1,i);
+end
+end
+pos = find(w2 == max)
+
+% ANSWER: best position for configuration 2 is x = 0.7
+
+% Config 3
+w3 = zeros(1, 4);
+for i = 6:9
+ w3(1, i-5) = w_func(0.75, 0.25, i*0.1);
+end
+max = w3(1,1);
+for i = 1:4
+ if w3(1,i) > max
+ max = w3(1,i);
+ end
+end
+pos = find(w3 == max)
+
+% ANSWER: best position for configuration 3 is x = 0.8
+
+%% Arm Optimization
+close all; clear all; clc;
+
+% Brute Force
+syms th1 th2 th3 L1 L2
+% Modified DH parameters
+alpha = [0, 0, 0, 0];
+a = [0, L1, L2, 0];
+d = [0.4, 0, 0, -0.15];
+th = [th1, th2, th3, 0];
+L(1) = Link('revolute', 'alpha', alpha(1), 'a', a(1), 'd', d(1), 'modified');
+L(2) = Link('revolute', 'alpha', alpha(2), 'a', a(2), 'd', d(2), 'modified');
+L(3) = Link('revolute', 'alpha', alpha(3), 'a', a(3), 'd', d(3), 'modified');
+L(4) = Link('prismatic', 'alpha', alpha(4), 'a', a(4), 'theta', 0, 'modified');
+SCARA = SerialLink(L, 'name', 'SCARA')
+
+% Joint angle
+syms q1 q2 q3 d4
+q = [q1 q2 q3 0.15];
+% Transformations, rotations, translations
+T01 = SCARA.A(1,q);
+T12 = SCARA.A(2,q);
+T23 = SCARA.A(3,q);
+T34 = SCARA.A(4,q);
+T04 = SCARA.A([1 2 3 4],q);
+T04 = simplify(T04)
+
+[R01, P01] = tr2rt(T01); R10 = transpose(R01);
+[R12, P12] = tr2rt(T12); R21 = transpose(R12);
+[R23, P23] = tr2rt(T23); R32 = transpose(R23);
+[R34, P34] = tr2rt(T34); R43 = transpose(R34);
+[R04, P04] = tr2rt(T04);
+[R02, P02] = tr2rt(simplify(T01*T12));
+[R03, P03] = tr2rt(simplify(T01*T12*T23));
+Jxyzs1 = cross(R01(:,3), P04 - P01);
+Jxyzs2 = cross(R02(:,3), P04 - P02);
+Jxyzs3 = cross(R03(:,3), P04 - P03);
+Jxyzs4 = R04(:,3);
+Jxyzs = [Jxyzs1 Jxyzs2 Jxyzs3 Jxyzs4]
+
+JOrns1 = R01(:,3);
+JOrns2 = R02(:,3);
+JOrns3 = R03(:,3);
+JOrns4 = zeros(3,1);
+JOrns = [JOrns1 JOrns2 JOrns3 JOrns4];
+Jdiffs = [Jxyzs; JOrns];
+J0 = [Jdiffs(1:2,1:3); Jdiffs(6,1:3)]
+
+J0T = transpose(J0);
+JJT = simplify(J0*J0T)
+
+l1 = [0.01:0.01:0.5];
+l2 = [0.01:0.01:0.5];
+h = 0.1;
+w = 0.14;
+d = 0.2;
+count = 0;
+kappa_array = [];
+C= [];
+l1_plot = [];
+l2_plot = [];
+X= linspace(d, d+w, 15);
+Y= linspace(-h/2, h/2, 11);
+for i=1:length(l1)
+    for j=1:length(l2)
+        kappa_array = [];
+        if (abs(l1(i)-l2(j)) < d) && (l1(i)+l2(j) > ((d+w)^2 + (h/2)^2)^0.5)
+            count = count+1;
+            for m=1:length(X)
+                for n=1:length(Y)
+                    [theta] = inverseKinematicsScara3(X(m), Y(n), l1(i), l2(j));
+                    JJTsubs = subs(JJT, [q1, q2, L1, L2], [theta(1), theta(2), l1(i), l2(j)]);
+                    JJTsubs = vpa(JJTsubs);
+                    lambda = eig(JJTsubs);
+                    lambda_max = max(lambda);
+                    lambda_min = min(lambda);
+                    kappa = vpa((lambda_min/lambda_max)^0.5);
+                    kappa_array = [kappa_array; kappa];
+                end
+            end
+            C(count) = (sum(kappa_array)*min(kappa_array))/(l1(i)^3 + l2(j)^3);
+            l1_plot(count) = l1(i);
+            l2_plot(count) = l2(j);
+            fprintf('Count = %d \t C-Value = %f \n',count, C(count));
+        end
+    end
+end
+
+
+% Plot values of Goal function
+scatter3(l1_plot,l2_plot,C, 'filled', 'MarkerEdgeColor','k','MarkerFaceColor',[0 .75 .75])
+xlabel('L1', 'FontWeight','bold')
+ylabel('L2', 'FontWeight','bold')
+zlabel('C', 'FontWeight','bold')
+
+% Find optimal values
+[Cmax,Imax] = max(C)
+L1_max = l1_plot(Imax)
+L2_max = l2_plot(Imax)
+
+% Plot value of Ki for entire workspace for best and worst combinations
+kappa_max = [];
+for m=1:length(X)
+    for n=1:length(Y)
+        [theta] = inverseKinematicsScara3(X(m), Y(n), L1_max, L2_max);
+        JJTsubs = subs(JJT, [q1, q2, L1, L2], [theta(1), theta(2), L1_max, L2_max]);
+        JJTsubs = vpa(JJTsubs);
+        lambda = eig(JJTsubs);
+        lambda_max = max(lambda);
+        lambda_min = min(lambda);
+        kappa = vpa((lambda_min/lambda_max)^0.5);
+        kappa_max(m,n) = kappa;
+    end
+end
+
+surf(X,Y, kappa_max')
+xlabel('X(m)', 'FontWeight','bold')
+ylabel('Y(m)', 'FontWeight','bold')
+zlabel('K', 'FontWeight','bold', 'FontSize', 14)
+
+% Here, we can see that the plot is symmetric
+% Based on the C_max, the best manipulability point is at x = 0.24
+% while the worst manipulability point is at x = 0.20
+
+
+%% Functions
+
+% IK function
+function q = ik(l1, l2, x)
+ c1 = (l1^2 + x^2 - l2^2)/(2*l1*x);
+ a = (l1^2 - l2^2 + x^2) / (2*x);
+ h = sqrt(l1^2 - a^2);
+ s1 = h/l1;
+ theta1 = atan2(s1, c1);
+ ca = (x-a)/l2;
+ sa = h/l2;
+ a = atan2(sa, ca);
+ theta2 = -(theta1+a);
+ q = [theta1 theta2];
+end
+
+% w function
+function w = w_func(L1, L2, x, Jdiff)
+    syms l1 l2 theta1 theta2
+    
+    alpha = [0, 0];
+    a = [l1, l2];
+    d = [0, 0];
+    
+    L(1) = Link('revolute', 'alpha', alpha(1), 'a', a(1), 'd', d(1), 'standard');
+    L(2) = Link('revolute', 'alpha', alpha(2), 'a', a(2), 'd', d(2), 'standard');
+    
+    RR_robot = SerialLink(L, 'name', 'RR_robot');
+    q_sym = [theta1 theta2];
+    
+    T01 = RR_robot.A(1, q_sym);
+    T12 = RR_robot.A(2, q_sym);
+    T02 = simplify(T01*T12);
+
+    [R01, P01] = tr2rt(T01); R10 = transpose(R01);
+    [R12, P12] = tr2rt(T12); R21 = transpose(R12);
+    [R02, P02] = tr2rt(simplify(T01*T12));
+
+    Jxyz1 = diff(P02, theta1);
+    Jxyz2 = diff(P02, theta2);
+    Jxyz = [Jxyz1 Jxyz2];
+
+    roll = 0;
+    pitch = 0;
+    yaw = theta1 + theta2;
+    Orn = [roll; pitch; yaw];
+    JOrn1 = diff(Orn, theta1);
+    JOrn2 = diff(Orn, theta2);
+    JOrn = [JOrn1 JOrn2];
+    Jdiff = [Jxyz; JOrn];
+    
+    theta = ik(L1, L2, x);
+    q1 = theta(1);
+    q2 = theta(2);
+    
+    config = subs(Jdiff, [l1,l2,theta1,theta2], [L1, L2, q1, q2]);
+    Jconfig = config(1:2, 1:2); % reduced Jacobian
+    Jconfig_T = transpose(Jconfig);
+    
+    w = sqrt(det(Jconfig*Jconfig_T));
+end
+
+function [theta] = inverseKinematicsScara3(X, Y, a1, a2)
+    c2 = (X^2 + Y^2 - a1^2 - a2^2)/(2*a1*a2);
+    s2 = (1 - c2^2)^(0.5);
+
+    t2s1 = atan2(s2, c2);
+    t2s2 = atan2(-s2, c2);
+
+    if(t2s1 >= 0)
+        theta2 = t2s1;
+    else
+        theta2 = t2s2;
+    end
+
+    beta = atan2(X, Y);
+    psi = acos((X^2 + Y^2 + a1^2 - a2^2)/(2*a1*(X^2 + Y^2)^(0.5)));
+    theta1 = -(beta + psi - pi/2);
+    theta = [theta1; theta2];
+end
+
+##### SOURCE END #####
+--></body></html>

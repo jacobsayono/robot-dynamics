@@ -1,0 +1,457 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>proj2</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-02-13"><meta name="DC.source" content="proj2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% Jacob Sayono</span>
+<span class="comment">% 505368811</span>
+
+<span class="comment">% MAE C163B</span>
+<span class="comment">% Project 2</span>
+
+close; clear; clc;
+
+<span class="comment">% lengths (m)</span>
+a1 = 0.325;
+a2 = 0.225;
+d1 = 0.416;
+d4 = 0.093;
+
+<span class="comment">% key positions</span>
+home = [0, -1, 0, .325;
+        1, 0, 0, .225;
+        0, 0, 1, .203;
+        0, 0, 0, 1];
+feeder = [0, -1, 0, .325;
+          1, 0, 0, .225;
+          0, 0, 1, .180;
+          0, 0, 0, 1];
+goal1 = [1, 0, 0, .280;
+         0, 1, 0, .240;
+         0, 0, 1, .180;
+         0, 0, 0, 1];
+goal2 = [0, -1, 0, .280;
+         1, 0, 0, .330;
+         0, 0, 1, .180;
+         0, 0, 0, 1];
+goal3 = [-1, 0, 0, .370;
+         -1, 0, 0, .240;
+          0, 0, 1, .180;
+          0, 0, 0, 1];
+goal4 = [0, 1, 0, .370;
+        -1, 0, 0, .240;
+         0, 0, 1, .180;
+         0, 0, 0, 1];
+
+<span class="comment">% via points</span>
+a = [0, -1, 0, .325;
+     1, 0, 0, .225;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+b = [1, 0, 0, .280;
+     0, 1, 0, .240;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+c = [0, -1, 0, .280;
+     1, 0, 0, .330;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+d = [-1, 0, 0, .370;
+     0, -1, 0, .330;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+e = [0, 1, 0, .370;
+     -1, 0, 0, .240;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+
+<span class="comment">% forward kinematics</span>
+T = FK(0, 0, .100, 0)
+
+<span class="comment">% inverse kinematics</span>
+[t1, t2, d3, t4] = IK(a)
+
+<span class="comment">% visualize robot</span>
+L1 = Revolute(<span class="string">'alpha'</span>, 0, <span class="string">'a'</span>, 0, <span class="string">'d'</span>, d1, <span class="string">'qlim'</span>, [-170 170]*pi/180);
+L2 = Revolute(<span class="string">'alpha'</span>, 0, <span class="string">'a'</span>, a1, <span class="string">'d'</span>, 0, <span class="string">'qlim'</span>, [-145 145]*pi/180);
+L3 = Prismatic(<span class="string">'alpha'</span>, pi, <span class="string">'a'</span>, a2, <span class="string">'theta'</span>, 0, <span class="string">'qlim'</span>, [0 .15]);
+L4 = Revolute(<span class="string">'alpha'</span>, 0, <span class="string">'a'</span>, 0, <span class="string">'d'</span>, d4, <span class="string">'qlim'</span>, [-360 360]*pi/180);
+tool = trans1(0, 0, 0);
+PCB_Builder = SerialLink([L1 L2 L3 L4], <span class="string">'name'</span>, <span class="string">'PCB_Builder'</span>, <span class="string">'tool'</span>, tool);
+
+<span class="comment">% convert waypoints into joint space values and interpolate</span>
+
+<span class="comment">% forward kinematics function</span>
+<span class="keyword">function</span> T = FK(theta1, theta2, d3, theta4)
+    a1 = 0.325;
+    a2 = 0.225;
+    d1 = 0.416;
+    d4 = 0.093;
+
+    T01 = mat_from_DH(0, 0, d1, theta1);
+    T12 = mat_from_DH(0, a1, 0, theta2 + 90);
+    T23 = mat_from_DH(0, a2, -d3, 0);
+    T34 = mat_from_DH(0, 0, -d4, theta4);
+
+    T = T01*T12*T23*T34;
+<span class="keyword">end</span>
+
+<span class="comment">% matrix function given DH parameters</span>
+<span class="keyword">function</span> matrix = mat_from_DH(alpha_iminus1, a_iminus1, d_i, theta_i)
+    matrix = [cosd(theta_i) -sind(theta_i) 0 a_iminus1;
+              sind(theta_i)*cosd(alpha_iminus1) cosd(theta_i)*cosd(alpha_iminus1) -sind(alpha_iminus1) -sind(alpha_iminus1)*d_i;
+              sind(theta_i)*sind(alpha_iminus1) cosd(theta_i)*sind(alpha_iminus1) cosd(alpha_iminus1) cosd(alpha_iminus1)*d_i;
+              0 0 0 1];
+<span class="keyword">end</span>
+
+<span class="comment">% inverse kinematics function</span>
+<span class="keyword">function</span> [theta1, theta2, d3, theta4] = IK(T)
+    [x, y, z, theta] = mat_to_pos(T);
+
+    a1 = 0.325;
+    a2 = 0.225;
+    d3_min = 0;
+    d3_max = 0.150;
+    d3_val = .323-z;
+
+    c_theta_2 = (x^2+y^2-a1^2-a2^2)/(2*a1*a2);
+    s_theta_2_pos = sqrt(1-c_theta_2^2);
+    s_theta_2_neg = -sqrt(1-c_theta_2^2);
+
+    theta_2_val1 = atan2(s_theta_2_pos,c_theta_2);
+    theta_2_val2 = atan2(s_theta_2_neg,c_theta_2);
+
+    L3_1 = a1+cos(theta_2_val1)*a2;
+    L3_2 = a1+cos(theta_2_val2)*a2;
+    L4_1 = sin(theta_2_val1)*a2;
+    L4_2 = sin(theta_2_val2)*a2;
+
+    theta_1_val1 = atan2(y,x) - atan2(L4_1,L3_1);
+    theta_1_val2 = atan2(y,x) - atan2(L4_2,L3_2);
+
+    theta_4_val1 = theta - pi/4 - theta_1_val1 - theta_2_val1;
+    theta_4_val2 = theta - pi/4 - theta_1_val2 - theta_2_val2;
+
+    <span class="keyword">if</span> (d3_val &lt; d3_min || d3_val &gt; d3_max)
+        d3 = -1;
+    <span class="keyword">else</span>
+        d3 = d3_val;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> (check_angles(theta_1_val1, theta_2_val1, theta_4_val1) == 1)
+        theta1 = theta_1_val1;
+        theta2 = theta_2_val1;
+        theta4 = theta_4_val1;
+        <span class="keyword">return</span>
+    <span class="keyword">elseif</span> (check_angles(theta_1_val2, theta_2_val2, theta_4_val2) == 1)
+        theta1 = theta_1_val2;
+        theta2 = theta_2_val2;
+        theta4 = theta_4_val2;
+        <span class="keyword">return</span>
+    <span class="keyword">else</span>
+        theta1 = -1;
+        theta2 = -1;
+        theta4 = -1;
+        <span class="keyword">return</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% check angles function</span>
+<span class="keyword">function</span> check = check_angles(t1_test, t2_test, t4_test)
+    t1_min = -170;
+    t1_max = 170;
+    t2_min = -145;
+    t2_max = 145;
+    t4_min = -360;
+    t4_max = 360;
+
+    check = -1;
+    <span class="keyword">if</span> (t1_test &lt; t1_min || t1_test &gt; t1_max)
+        <span class="keyword">return</span>
+    <span class="keyword">elseif</span> (t2_test &lt; t2_min || t2_test &gt; t2_max)
+        <span class="keyword">return</span>
+    <span class="keyword">elseif</span> (t4_test &lt; t4_min || t4_test &gt; t4_max)
+        <span class="keyword">return</span>
+    <span class="keyword">else</span>
+        check = 1;
+        <span class="keyword">return</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% euler angles function</span>
+<span class="keyword">function</span> [x, y, z, theta] = mat_to_pos(T)
+    x = T(1,4);
+    y = T(2,4);
+    z = T(3,4);
+    eul_angles = rotm2eul(T(1:3,1:3));
+    theta = eul_angles(1);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+T =
+
+         0   -1.0000         0    0.3250
+    1.0000         0         0    0.2250
+         0         0    1.0000    0.2230
+         0         0         0    1.0000
+
+</pre><pre class="codeoutput error">Undefined function 'rotm2eul' for input arguments of type 'double'.
+
+Error in proj2&gt;mat_to_pos (line 181)
+    eul_angles = rotm2eul(T(1:3,1:3));
+
+Error in proj2&gt;IK (line 104)
+    [x, y, z, theta] = mat_to_pos(T);
+
+Error in proj2 (line 67)
+[t1, t2, d3, t4] = IK(a)
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Jacob Sayono
+% 505368811
+
+% MAE C163B
+% Project 2
+
+close; clear; clc;
+
+% lengths (m)
+a1 = 0.325;
+a2 = 0.225;
+d1 = 0.416;
+d4 = 0.093;
+
+% key positions
+home = [0, -1, 0, .325;
+        1, 0, 0, .225;
+        0, 0, 1, .203;
+        0, 0, 0, 1];
+feeder = [0, -1, 0, .325;
+          1, 0, 0, .225;
+          0, 0, 1, .180;
+          0, 0, 0, 1];
+goal1 = [1, 0, 0, .280;
+         0, 1, 0, .240;
+         0, 0, 1, .180;
+         0, 0, 0, 1];
+goal2 = [0, -1, 0, .280;
+         1, 0, 0, .330;
+         0, 0, 1, .180;
+         0, 0, 0, 1];
+goal3 = [-1, 0, 0, .370;
+         -1, 0, 0, .240;
+          0, 0, 1, .180;
+          0, 0, 0, 1];
+goal4 = [0, 1, 0, .370;
+        -1, 0, 0, .240;
+         0, 0, 1, .180;
+         0, 0, 0, 1];
+
+% via points
+a = [0, -1, 0, .325;
+     1, 0, 0, .225;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+b = [1, 0, 0, .280;
+     0, 1, 0, .240;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+c = [0, -1, 0, .280;
+     1, 0, 0, .330;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+d = [-1, 0, 0, .370;
+     0, -1, 0, .330;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+e = [0, 1, 0, .370;
+     -1, 0, 0, .240;
+     0, 0, 1, .190;
+     0, 0, 0, 1];
+
+% forward kinematics
+T = FK(0, 0, .100, 0)
+
+% inverse kinematics
+[t1, t2, d3, t4] = IK(a)
+
+% visualize robot
+L1 = Revolute('alpha', 0, 'a', 0, 'd', d1, 'qlim', [-170 170]*pi/180);
+L2 = Revolute('alpha', 0, 'a', a1, 'd', 0, 'qlim', [-145 145]*pi/180);
+L3 = Prismatic('alpha', pi, 'a', a2, 'theta', 0, 'qlim', [0 .15]);
+L4 = Revolute('alpha', 0, 'a', 0, 'd', d4, 'qlim', [-360 360]*pi/180);
+tool = trans1(0, 0, 0);
+PCB_Builder = SerialLink([L1 L2 L3 L4], 'name', 'PCB_Builder', 'tool', tool);
+
+% convert waypoints into joint space values and interpolate
+
+% forward kinematics function
+function T = FK(theta1, theta2, d3, theta4)
+    a1 = 0.325;
+    a2 = 0.225;
+    d1 = 0.416;
+    d4 = 0.093;
+    
+    T01 = mat_from_DH(0, 0, d1, theta1);
+    T12 = mat_from_DH(0, a1, 0, theta2 + 90);
+    T23 = mat_from_DH(0, a2, -d3, 0);
+    T34 = mat_from_DH(0, 0, -d4, theta4);
+    
+    T = T01*T12*T23*T34;
+end
+
+% matrix function given DH parameters
+function matrix = mat_from_DH(alpha_iminus1, a_iminus1, d_i, theta_i)
+    matrix = [cosd(theta_i) -sind(theta_i) 0 a_iminus1;
+              sind(theta_i)*cosd(alpha_iminus1) cosd(theta_i)*cosd(alpha_iminus1) -sind(alpha_iminus1) -sind(alpha_iminus1)*d_i;
+              sind(theta_i)*sind(alpha_iminus1) cosd(theta_i)*sind(alpha_iminus1) cosd(alpha_iminus1) cosd(alpha_iminus1)*d_i;
+              0 0 0 1];
+end
+
+% inverse kinematics function
+function [theta1, theta2, d3, theta4] = IK(T)
+    [x, y, z, theta] = mat_to_pos(T);
+    
+    a1 = 0.325;
+    a2 = 0.225;
+    d3_min = 0;
+    d3_max = 0.150;
+    d3_val = .323-z;
+    
+    c_theta_2 = (x^2+y^2-a1^2-a2^2)/(2*a1*a2);
+    s_theta_2_pos = sqrt(1-c_theta_2^2);
+    s_theta_2_neg = -sqrt(1-c_theta_2^2);
+    
+    theta_2_val1 = atan2(s_theta_2_pos,c_theta_2);
+    theta_2_val2 = atan2(s_theta_2_neg,c_theta_2);
+    
+    L3_1 = a1+cos(theta_2_val1)*a2;
+    L3_2 = a1+cos(theta_2_val2)*a2;
+    L4_1 = sin(theta_2_val1)*a2;
+    L4_2 = sin(theta_2_val2)*a2;
+    
+    theta_1_val1 = atan2(y,x) - atan2(L4_1,L3_1);
+    theta_1_val2 = atan2(y,x) - atan2(L4_2,L3_2);
+    
+    theta_4_val1 = theta - pi/4 - theta_1_val1 - theta_2_val1;
+    theta_4_val2 = theta - pi/4 - theta_1_val2 - theta_2_val2;
+    
+    if (d3_val < d3_min || d3_val > d3_max)
+        d3 = -1;
+    else
+        d3 = d3_val;
+    end
+    
+    if (check_angles(theta_1_val1, theta_2_val1, theta_4_val1) == 1)
+        theta1 = theta_1_val1;
+        theta2 = theta_2_val1;
+        theta4 = theta_4_val1;
+        return
+    elseif (check_angles(theta_1_val2, theta_2_val2, theta_4_val2) == 1)
+        theta1 = theta_1_val2;
+        theta2 = theta_2_val2;
+        theta4 = theta_4_val2;
+        return
+    else
+        theta1 = -1;
+        theta2 = -1;
+        theta4 = -1;
+        return
+    end
+end
+
+% check angles function
+function check = check_angles(t1_test, t2_test, t4_test)
+    t1_min = -170;
+    t1_max = 170;
+    t2_min = -145;
+    t2_max = 145;
+    t4_min = -360;
+    t4_max = 360;
+
+    check = -1;
+    if (t1_test < t1_min || t1_test > t1_max)
+        return
+    elseif (t2_test < t2_min || t2_test > t2_max)
+        return
+    elseif (t4_test < t4_min || t4_test > t4_max)
+        return
+    else
+        check = 1;
+        return
+    end
+end
+
+% euler angles function
+function [x, y, z, theta] = mat_to_pos(T)
+    x = T(1,4);
+    y = T(2,4);
+    z = T(3,4);
+    eul_angles = rotm2eul(T(1:3,1:3));
+    theta = eul_angles(1);
+end
+##### SOURCE END #####
+--></body></html>
